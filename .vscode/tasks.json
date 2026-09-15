@@ -1,0 +1,46 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/Sakilabo.Unishox2.sln"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "${workspaceFolder}/tests/Sakilabo.Unishox2.Tests/Sakilabo.Unishox2.Tests.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "pack",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "pack",
+                "${workspaceFolder}/src/Sakilabo.Unishox2/Sakilabo.Unishox2.csproj",
+                "-c",
+                "Release"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        }
+    ]
+}

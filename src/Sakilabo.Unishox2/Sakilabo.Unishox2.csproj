@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Version>0.1.0</Version>
+    <PackageId>Sakilabo.Unishox2</PackageId>
+    <Product>Sakilabo.Unishox2</Product>
+    <Description>Unishox2 圧縮アルゴリズムの C# 実装(.NET Standard 2.0、ネイティブ依存なし)。</Description>
+    <Authors>株式会社さきラボ (Sakilabo Corporation Ltd.)</Authors>
+    <Company>株式会社さきラボ (Sakilabo Corporation Ltd.)</Company>
+    <Copyright>Copyright 2026 株式会社さきラボ (Sakilabo Corporation Ltd.); Copyright (C) 2020 Siara Logics (cc)</Copyright>
+    <PackageLicenseExpression>Apache-2.0 AND UPL-1.0</PackageLicenseExpression>
+    <PackageTags>unishox;unishox2;compression;text-compression</PackageTags>
+    <PackageProjectUrl>https://github.com/sakilabo/unishox2-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sakilabo/unishox2-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE-APACHE.txt" Pack="true" PackagePath="" />
+    <None Include="../../LICENSE-UPL.txt" Pack="true" PackagePath="" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

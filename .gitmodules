@@ -1,0 +1,3 @@
+[submodule "tests/upstream/Unishox2"]
+	path = tests/upstream/Unishox2
+	url = https://github.com/siara-cc/Unishox2

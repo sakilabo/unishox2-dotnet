@@ -1,0 +1,15 @@
+bin/
+obj/
+*.user
+.vs/
+artifacts/
+TestResults/
+*.nupkg
+*.snupkg
+
+# Cハーネスを手動ビルドしたときの生成物。
+# 比較テストは一時フォルダーへビルドするため、通常この場所には生成されない。
+/tests/upstream/harness/harness
+/tests/upstream/harness/harness.exe
+/tests/upstream/harness/*.obj
+/tests/upstream/harness/*.pdb

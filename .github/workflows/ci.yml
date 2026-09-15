@@ -1,0 +1,48 @@
+name: CI
+
+# バージョンタグを選んで手動で実行する。
+on:
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: バージョンタグの確認
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          if [[ ! "$REF" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+(-.+)?$ ]]; then
+            echo "::error::バージョンタグ（v0.1.0 形式）を選んで実行してください。指定されたref: $REF"
+            exit 1
+          fi
+          echo "バージョンタグ: ${REF#refs/tags/}"
+
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            10.0.x
+
+      - name: Restore
+        run: dotnet restore Sakilabo.Unishox2.sln
+
+      # ContinuousIntegrationBuild はソースのパスを正規化する。
+      # これがないと、pdb に作業機の絶対パスがそのまま入る。
+      - name: Build
+        run: dotnet build Sakilabo.Unishox2.sln --no-restore -c Release -p:ContinuousIntegrationBuild=true
+
+      # 通常CIはC#のみでテストする。上流C版比較は明示実行する検証。
+      - name: Test
+        run: dotnet test tests/Sakilabo.Unishox2.Tests/Sakilabo.Unishox2.Tests.csproj --no-build -c Release --logger "console;verbosity=normal"
+
+      - name: Pack
+        run: dotnet pack src/Sakilabo.Unishox2/Sakilabo.Unishox2.csproj --no-build -c Release -o artifacts -p:ContinuousIntegrationBuild=true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: artifacts/*.nupkg
