@@ -56,7 +56,7 @@ Results of compressing [LICENSE-UPL.txt](https://github.com/sakilabo/unishox2-do
 This is development version `0.1.0` and it is not published on NuGet.org yet. [Build the NuGet package](#building-the-nuget-package) from source, then add it in the project folder of the application that uses it.
 
 ```sh
-dotnet add package Sakilabo.Unishox2 --version 0.1.0 --source "<absolute path of the artifacts folder you produced>"
+dotnet add package Sakilabo.Unishox2 --version 0.1.0 --source "<absolute path of the artifacts/package/release folder you produced>"
 ```
 
 ## Usage
@@ -270,10 +270,10 @@ For the build settings per compiler and the details of the comparison, see [the 
 Run this at the repository root. No C compiler is required.
 
 ```sh
-dotnet pack src/Sakilabo.Unishox2/Sakilabo.Unishox2.csproj -c Release -o artifacts
+dotnet pack src/Sakilabo.Unishox2/Sakilabo.Unishox2.csproj -c Release
 ```
 
-This produces the `.nupkg` and the `.snupkg` symbol package in `artifacts/`.
+This produces the `.nupkg` and the `.snupkg` symbol package in `artifacts/package/release/`. The repository uses the [artifacts output layout](https://learn.microsoft.com/dotnet/core/sdk/artifacts-output) of the .NET SDK, so every build output is gathered under `artifacts/`.
 
 For how to add it to a project that uses it, see [Installation](#installation).
 

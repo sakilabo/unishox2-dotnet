@@ -56,7 +56,7 @@ Sakilabo.Unishox2 は、短いテキストを圧縮し、元の文字列へ復�
 現在は開発版 `0.1.0` で、NuGet.org には未公開です。ソースから [NuGet パッケージを生成](#nuget-パッケージの生成)し、利用するアプリのプロジェクトフォルダーで追加してください。
 
 ```sh
-dotnet add package Sakilabo.Unishox2 --version 0.1.0 --source "<生成したartifactsフォルダーの絶対パス>"
+dotnet add package Sakilabo.Unishox2 --version 0.1.0 --source "<生成した artifacts/package/release フォルダーの絶対パス>"
 ```
 
 ## 使い方
@@ -270,10 +270,10 @@ C 実行ファイルは比較テスト専用です。ライブラリ本体と Nu
 リポジトリのルートで実行します。C コンパイラは不要です。
 
 ```sh
-dotnet pack src/Sakilabo.Unishox2/Sakilabo.Unishox2.csproj -c Release -o artifacts
+dotnet pack src/Sakilabo.Unishox2/Sakilabo.Unishox2.csproj -c Release
 ```
 
-`artifacts/` に `.nupkg` とシンボルパッケージ `.snupkg` を生成します。
+`artifacts/package/release/` に `.nupkg` とシンボルパッケージ `.snupkg` を生成します。このリポジトリは .NET SDK の [artifacts 出力レイアウト](https://learn.microsoft.com/ja-jp/dotnet/core/sdk/artifacts-output)を使用しており、ビルド出力はすべて `artifacts/` の下にまとまります。
 
 利用するプロジェクトへの追加方法は [導入](#導入) を参照してください。
 
