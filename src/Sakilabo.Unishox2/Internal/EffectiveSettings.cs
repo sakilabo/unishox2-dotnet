@@ -5,7 +5,7 @@ using System.Text;
 namespace Sakilabo.Unishox2.Internal
 {
     /// <summary>
-    /// CompressOption を検証し、圧縮・展開処理用にコピーした設定。
+    /// A validated copy of a CompressOption, prepared for the compression and decompression routines.
     /// </summary>
     internal sealed class EffectiveSettings
     {
@@ -18,10 +18,10 @@ namespace Sakilabo.Unishox2.Internal
 
         public HCodes HCodes { get; }
 
-        /// <summary>頻出文字列を UTF-8 バイト列化したもの(最大6要素)。</summary>
+        /// <summary>The frequent sequences as UTF-8 byte sequences, at most 6 elements.</summary>
         public byte[][] FreqSeq { get; }
 
-        /// <summary>テンプレート文字列を UTF-8 バイト列化したもの(最大 5 要素)。</summary>
+        /// <summary>The template strings as UTF-8 byte sequences, at most 5 elements.</summary>
         public byte[][] Templates { get; }
 
         public static EffectiveSettings Resolve(CompressOption? options)
@@ -47,11 +47,11 @@ namespace Sakilabo.Unishox2.Internal
         private static byte[][] ValidateTemplates(string[] templates)
         {
             if (templates.Length > 5)
-                throw new ArgumentException("Templates は 5 要素以下である必要があります。", nameof(CompressOption.Templates));
+                throw new ArgumentException("Templates must have 5 or fewer elements.", nameof(CompressOption.Templates));
             for (int i = 0; i < templates.Length; i++)
             {
                 if (string.IsNullOrEmpty(templates[i]))
-                    throw new ArgumentException("Templates に null または空文字列は指定できません。", nameof(CompressOption.Templates));
+                    throw new ArgumentException("Templates must not contain null or empty elements.", nameof(CompressOption.Templates));
             }
             return ToUtf8Array(templates);
         }
@@ -59,21 +59,21 @@ namespace Sakilabo.Unishox2.Internal
         private static byte[][] ValidateFrequentSequences(string[] sequences)
         {
             if (sequences.Length > 6)
-                throw new ArgumentException("FrequentSequences は 6 要素以下である必要があります。", nameof(CompressOption.FrequentSequences));
+                throw new ArgumentException("FrequentSequences must have 6 or fewer elements.", nameof(CompressOption.FrequentSequences));
             for (int i = 0; i < sequences.Length; i++)
             {
                 if (string.IsNullOrEmpty(sequences[i]))
-                    throw new ArgumentException("FrequentSequences に null または空文字列は指定できません。", nameof(CompressOption.FrequentSequences));
+                    throw new ArgumentException("FrequentSequences must not contain null or empty elements.", nameof(CompressOption.FrequentSequences));
             }
             return ToUtf8Array(sequences);
         }
 
         /// <summary>
-        /// 水平符号長は 1 回の書き込みで扱える 0～8 ビットに制限する。
+        /// Horizontal code lengths are limited to the 0 to 8 bits that a single write can handle.
         /// </summary>
         /// <summary>
-        /// 水平符号が一意に判別できる接頭辞符号になっていることを検証する。
-        /// ALPHA の水平符号がない場合は常に ALPHA として扱うため、他のグループにも水平符号を設定できない。
+        /// Verifies that the horizontal codes form a uniquely decodable prefix code.
+        /// When ALPHA has no horizontal code every character is treated as ALPHA, so no other group may have one either.
         /// </summary>
         private static void ValidatePrefixFree(HCodes hCodes)
         {
@@ -82,7 +82,7 @@ namespace Sakilabo.Unishox2.Internal
                 for (int i = 0; i < 5; i++)
                 {
                     if (hCodes[i].HasValue)
-                        throw new ArgumentException("ALPHA の水平符号がない場合、他のグループにも水平符号は設定できません。", nameof(CompressOption.HCodes));
+                        throw new ArgumentException("When ALPHA has no horizontal code, no other group may have one either.", nameof(CompressOption.HCodes));
                 }
                 return;
             }
@@ -102,8 +102,8 @@ namespace Sakilabo.Unishox2.Internal
                     if ((first.Code & mask) == (second.Code & mask))
                     {
                         throw new ArgumentException(
-                            $"HCodes のグループ {i} と {j} の符号が接頭辞として衝突しています" +
-                            "(一意に復号できる符号体系ではありません)。",
+                            $"The codes for HCodes groups {i} and {j} collide as prefixes " +
+                            "(the code set is not uniquely decodable).",
                             nameof(CompressOption.HCodes));
                     }
                 }

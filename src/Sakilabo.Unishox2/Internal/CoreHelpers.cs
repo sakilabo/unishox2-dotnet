@@ -28,8 +28,8 @@ namespace Sakilabo.Unishox2.Internal
         private static readonly string[] GroupNames = { "ALPHA", "SYM", "NUM", "DICT", "DELTA" };
 
         /// <summary>
-        /// 文字グループの水平符号と垂直符号を書き込み、state を更新する。
-        /// 水平符号がないグループは表現できないため UnishoxFormatException を送出する。
+        /// Writes the horizontal and vertical codes for a character group and updates state.
+        /// A group without a horizontal code cannot be represented, so UnishoxFormatException is thrown.
         /// </summary>
         public static void AppendCode(this BitWriter w, int code, ref HCodeGroup state, HCodes hCodes)
         {
@@ -38,9 +38,9 @@ namespace Sakilabo.Unishox2.Internal
             if (!hCodes[hcode].HasValue && hcode != HCodeGroup.Alpha)
             {
                 throw new UnishoxFormatException(
-                    $"現在の CompressOption(CompressOptions の定義済み設定または個別設定)では文字グループ '{GroupNames[(int)hcode]}' の符号が" +
-                    "設定されていないため、入力中の対応する文字を圧縮できません。" +
-                    "CompressOptions の定義済み設定または HCodes を見直してください。");
+                    $"The current CompressOption (a predefined set from CompressOptions, or a customised one) has no code for character group '{GroupNames[(int)hcode]}', " +
+                    "so the matching characters in the input cannot be compressed. " +
+                    "Review the predefined settings in CompressOptions, or the HCodes value.");
             }
             switch (hcode)
             {
@@ -70,7 +70,7 @@ namespace Sakilabo.Unishox2.Internal
             w.AppendBits(Tables.UsxVCodes[vcode], Tables.UsxVCodeLens[vcode]);
         }
 
-        /// <summary>整数を可変長のカウント符号で書き込む。</summary>
+        /// <summary>Writes an integer as a variable-length count code.</summary>
         public static void EncodeCount(this BitWriter w, int count)
         {
             for (int i = 0; i < 5; i++)
@@ -93,7 +93,7 @@ namespace Sakilabo.Unishox2.Internal
             }
         }
 
-        /// <summary>Unicode コードポイントの差分を符号化する。</summary>
+        /// <summary>Encodes the delta between Unicode code points.</summary>
         public static void EncodeUnicode(this BitWriter w, int code, int prevCode)
         {
             long till = 0;
@@ -132,7 +132,7 @@ namespace Sakilabo.Unishox2.Internal
             }
         }
 
-        /// <summary>ニブル列の開始を表すエスケープ符号を書き込む。</summary>
+        /// <summary>Writes the escape code that marks the start of a nibble sequence.</summary>
         public static void AppendNibbleEscape(this BitWriter w, HCodeGroup state, HCodes hCodes)
         {
             w.AppendSwitchCode(state);
@@ -147,8 +147,8 @@ namespace Sakilabo.Unishox2.Internal
         }
 
         /// <summary>
-        /// 最終バイトの空きビットに終端符号を書き込む。終端符号が次のバイトへ
-        /// はみ出す場合は書き込まず、展開側は入力末尾を終端として扱う。
+        /// Writes the terminator code into the free bits of the final byte. When the terminator would
+        /// spill into the next byte it is not written, and the decoder treats the end of the input as the terminator.
         /// </summary>
         public static void AppendFinalBits(this BitWriter w, HCodeGroup state, bool isAllUpper, HCodes hCodes)
         {
@@ -172,7 +172,7 @@ namespace Sakilabo.Unishox2.Internal
             }
             catch (BitWriter.WriteLimitExceededException)
             {
-                // バイト境界を超える終端符号は省略する。
+                // Skip a terminator code that would cross the byte boundary.
             }
             finally
             {
@@ -215,8 +215,8 @@ namespace Sakilabo.Unishox2.Internal
         }
 
         /// <summary>
-        /// input の index 位置から UTF-8 のマルチバイト文字を読む。
-        /// 単一バイト(ASCII)やデコード不能な列は 0 を返す(呼び出し側の分岐で判別)。
+        /// Reads a multi-byte UTF-8 character from input at the given index.
+        /// Returns 0 for a single byte (ASCII) or an undecodable sequence, which the caller branches on.
         /// </summary>
         public static int ReadUtf8(byte[] input, int l, out int utf8Len)
         {
@@ -252,7 +252,7 @@ namespace Sakilabo.Unishox2.Internal
             return 0;
         }
 
-        /// <summary>Unicode コードポイントを UTF-8 バイト列として出力へ書き込む。</summary>
+        /// <summary>Writes a Unicode code point to the output as a UTF-8 byte sequence.</summary>
         public static void WriteUtf8(List<byte> output, int uni)
         {
             if (uni < (1 << 11))

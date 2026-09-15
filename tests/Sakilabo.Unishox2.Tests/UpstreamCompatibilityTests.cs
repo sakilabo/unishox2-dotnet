@@ -1,6 +1,8 @@
-// tests/upstream/Unishox2/test_unishox2.c の run_unit_tests() からテキストを抽出した
-// 公式テストケース(UpstreamTestCases.json、159 件)で、C# 実装の往復性を検証する。
-// siara-cc/Unishox2CとC#の双方向の相互展開を検証する。圧縮バイト列の完全一致は要求しない。
+// Verifies the round-trip behaviour of the C# implementation against the official test cases
+// (UpstreamTestCases.json, 159 entries) extracted from run_unit_tests() in
+// tests/upstream/Unishox2/test_unishox2.c.
+// Cross-decompression is checked in both directions between the siara-cc/Unishox2 C implementation and C#.
+// An exact match of the compressed bytes is not required.
 
 using System;
 using System.Collections.Generic;
@@ -23,16 +25,16 @@ public class UpstreamCompatibilityTests
         return JsonSerializer.Deserialize<string[]>(json) ?? Array.Empty<string>();
     }
 
-    // siara-cc/Unishox2テストコード中に同一文字列のテストケースが複数箇所で使われているため、文字列だけを
-    // MemberData のキーにすると xUnit のテストケース ID が重複して警告になる。検証範囲を
-    // 減らさず(159 件すべてを維持し)ID だけを一意にするため、ケース番号を組で渡す。
+    // The siara-cc/Unishox2 test code uses the same string in several test cases, so keying MemberData on
+    // the string alone would produce duplicate xUnit test case IDs and a warning. The case number is passed
+    // alongside the string to make the IDs unique without narrowing coverage, keeping all 159 entries.
     public static IEnumerable<object[]> CaseData => Cases.Select((c, i) => new object[] { i, c });
 
     [Theory]
     [MemberData(nameof(CaseData))]
     public void UpstreamOfficialTestCase_RoundTripsInCSharp(int caseNumber, string text)
     {
-        _ = caseNumber; // ID 重複回避のためだけの引数(アサーションには使わない)
+        _ = caseNumber; // present only to keep the test IDs unique; not used in assertions
         var compressed = Unishox2.Compress(text);
         string decompressed = Unishox2.Decompress(compressed);
         Assert.Equal(text, decompressed);
@@ -52,7 +54,7 @@ public class UpstreamCompatibilityTests
             byte[] utf8 = System.Text.Encoding.UTF8.GetBytes(text);
             string hexIn = ToHex(utf8);
 
-            // C# で圧縮 -> C で展開
+            // Compress in C#, decompress in C
             byte[] csSaved = Unishox2.Compress(text);
             string cDecompressedHex = harness.Send($"D 0 {ToHex(csSaved)}");
             if (cDecompressedHex == "ERR" || FromHex(cDecompressedHex) is not { } cDecoded || !cDecoded.SequenceEqual(utf8))
@@ -61,7 +63,7 @@ public class UpstreamCompatibilityTests
                 continue;
             }
 
-            // C で圧縮 -> C# で展開
+            // Compress in C, decompress in C#
             string cCompressedHex = harness.Send($"C 0 {hexIn}");
             if (cCompressedHex == "ERR")
             {
@@ -79,8 +81,8 @@ public class UpstreamCompatibilityTests
             checkedCount++;
         }
 
-        Assert.True(checkedCount > 0, "ネイティブハーネスは利用可能と判定されたが、1 件も検証できなかった。");
-        Assert.True(mismatches.Count == 0, $"{mismatches.Count}/{Cases.Length} 件不一致:\n" + string.Join("\n", mismatches.Take(20)));
+        Assert.True(checkedCount > 0, "The native harness was reported as available, but not a single case could be verified.");
+        Assert.True(mismatches.Count == 0, $"{mismatches.Count}/{Cases.Length} mismatches:\n" + string.Join("\n", mismatches.Take(20)));
     }
 
     private static string Describe(string text) => text.Length > 40 ? text.Substring(0, 40) + "..." : text;

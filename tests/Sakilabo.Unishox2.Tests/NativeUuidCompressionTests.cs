@@ -1,4 +1,5 @@
-// 文字列の途中にある UUID を専用形式で圧縮し、C 実装とも相互展開できることを確認する。
+// Confirms that a UUID appearing in the middle of a string is compressed with the dedicated format and
+// still cross-decompresses with the C implementation.
 
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace Sakilabo.Unishox2.Tests;
 
 public class NativeUuidCompressionTests
 {
-    // UUID の大文字・小文字、前後の ASCII・日本語を組み合わせる。
+    // Combines upper and lower case UUIDs with surrounding ASCII and Japanese text.
     private static readonly (string Label, string Text)[] Cases =
     {
         ("ascii-lower-trailing", "Hello 550e8400-e29b-41d4-a716-446655440000 World"),
@@ -57,7 +58,7 @@ public class NativeUuidCompressionTests
         byte[]? cDecoded = FromHex(cDecompressedHex);
         Assert.NotNull(cDecoded);
         Assert.True(cDecoded!.SequenceEqual(utf8),
-            $"無改造のsiara-cc/Unishox2 C バイナリでの展開結果が一致しません。cs圧縮={ToHex(csRaw)}");
+            $"The result decompressed by the unmodified siara-cc/Unishox2 C binary does not match. C# compressed={ToHex(csRaw)}");
     }
 
     [Theory]

@@ -1,4 +1,4 @@
-// CompressOption.FrequentSequences の要素数と内容を確認する。
+// Checks the element count and contents of CompressOption.FrequentSequences.
 
 using System;
 using System.Collections.Generic;

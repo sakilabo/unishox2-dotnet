@@ -1,65 +1,67 @@
 # Sakilabo.Unishox2
 
-本ライブラリは、[Unishox2](https://github.com/siara-cc/Unishox2) の成果に基づく C# 再実装です。短文向けの圧縮アルゴリズムとその実装を公開してくださった Arundale Ramanathan 氏、James Z. M. Gao 氏をはじめ、Unishox の開発・改良に携わる皆様に感謝します。
+日本語版: [README.ja.md](./README.ja.md)
 
-Sakilabo.Unishox2 は、短いテキストを圧縮し、元の文字列へ復元する C# ライブラリです。メッセージ、URL、JSON、ログなどのテキストを保存・送信する用途に使えます。日本語や絵文字を含む Unicode 文字列に対応しています。
+This library is a C# re-implementation based on the work of [Unishox2](https://github.com/siara-cc/Unishox2). Our thanks go to Arundale Ramanathan and James Z. M. Gao, who published the short-string compression algorithm and its implementation, and to everyone who has developed and improved Unishox.
 
-短文向けの圧縮アルゴリズム **Unishox2** を C# で再実装しています。Unishox2 は、文字の種類、繰り返し、頻出文字列、日付などの定型パターンを使ってテキストデータを圧縮します。アルゴリズムの原典と C 実装は [siara-cc/Unishox2](https://github.com/siara-cc/Unishox2) で公開されています。
+Sakilabo.Unishox2 is a C# library that compresses short text and restores the original string. It is useful for storing and transmitting text such as messages, URLs, JSON and logs. It handles Unicode strings, including Japanese and emoji.
 
-## できること
+It re-implements **Unishox2**, a compression algorithm for short text, in C#. Unishox2 compresses text data using character classes, repetitions, frequent sequences and fixed patterns such as dates. The original algorithm and its C implementation are published at [siara-cc/Unishox2](https://github.com/siara-cc/Unishox2).
 
-- **文字列の圧縮・復元**：`string` または UTF-8 の `byte[]` を圧縮し、`string` に復元します。
-- **文字列配列の圧縮**：要素内・要素間の繰り返しを利用して文字列配列を圧縮・復元します。
-- **内容に合わせた設定**：JSON、URL、XML などの定義済み設定を選べます。頻出文字列や定型パターンも指定できます。
-- **圧縮結果の保存**：圧縮データを `byte[]` として取得し、保存・送信できます。
+## What it does
 
-ライブラリは **.NET Standard 2.0** に対応しています。利用時に C コンパイラやネイティブライブラリは必要ありません。siara-cc/Unishox2 と圧縮データを交換する場合は、[互換性・非互換性](#siara-ccunishox2-との互換性非互換性)を確認してください。
+- **Compress and restore strings**: compresses a `string` or a UTF-8 `byte[]`, and restores it to a `string`.
+- **Compress string arrays**: compresses and restores an array of strings, exploiting repetitions within an element and across elements.
+- **Settings matched to the content**: predefined settings for JSON, URLs, XML and more. Frequent sequences and fixed patterns can also be specified.
+- **Store the compressed result**: the compressed data is returned as a `byte[]` that can be stored or transmitted.
 
-## CompressOptions.Default での圧縮例
+The library targets **.NET Standard 2.0**. Using it requires no C compiler and no native library. If you exchange compressed data with siara-cc/Unishox2, see [Compatibility and incompatibilities](#compatibility-and-incompatibilities-with-siara-ccunishox2).
 
-`siara-cc/Unishox2` の README に掲載されている12言語の圧縮例と同じ入力を、`Unishox2.Compress(text)`（`CompressOptions.Default`）で圧縮した実測値です。
+## Compression examples with CompressOptions.Default
 
-| 言語 | 入力文字列 | UTF-16（バイト） | UTF-8（バイト） | 圧縮後（バイト） |
+Measured results of compressing the same 12-language inputs listed in the `siara-cc/Unishox2` README with `Unishox2.Compress(text)`, which uses `CompressOptions.Default`.
+
+| Language | Input string | UTF-16 (bytes) | UTF-8 (bytes) | Compressed (bytes) |
 | --- | --- | --- | --- | --- |
-| 英語 | Beauty is not in the face. Beauty is a light in the heart. | 116 | 58 | 30 |
-| アラビア語 | الجمال ليس في الوجه. الجمال هو النور الذي في القلب. | 102 | 91 | 46 |
-| ドイツ語 | Schönheit ist nicht im Gesicht. Schönheit ist ein Licht im Herzen. | 132 | 68 | 36 |
-| スペイン語 | La belleza no está en la cara. La belleza es una luz en el corazón. | 134 | 69 | 38 |
-| フランス語 | La beauté est pas dans le visage. La beauté est la lumière dans le coeur. | 146 | 76 | 39 |
-| ヒンディー語 | सुंदरता चेहरे में नहीं है। सौंदर्य हृदय में प्रकाश है। | 108 | 144 | 53 |
-| イタリア語 | La bellezza non è in faccia. La bellezza è la luce nel cuore. | 122 | 63 | 36 |
-| 日本語 | 美は顔にありません。美は心の中の光です。 | 40 | 60 | 39 |
-| ベンガル語 | সৌন্দর্য মুখে নেই। সৌন্দর্য হৃদয় একটি আলো। | 86 | 117 | 41 |
-| ポルトガル語 | A beleza não está na cara. A beleza é a luz no coração. | 110 | 60 | 36 |
-| ロシア語 | Красота не в лицо. Красота - это свет в сердце. | 94 | 82 | 44 |
-| 中国語 | 美是不是在脸上。 美是心中的亮光。 | 34 | 49 | 36 |
+| English | Beauty is not in the face. Beauty is a light in the heart. | 116 | 58 | 30 |
+| Arabic | الجمال ليس في الوجه. الجمال هو النور الذي في القلب. | 102 | 91 | 46 |
+| German | Schönheit ist nicht im Gesicht. Schönheit ist ein Licht im Herzen. | 132 | 68 | 36 |
+| Spanish | La belleza no está en la cara. La belleza es una luz en el corazón. | 134 | 69 | 38 |
+| French | La beauté est pas dans le visage. La beauté est la lumière dans le coeur. | 146 | 76 | 39 |
+| Hindi | सुंदरता चेहरे में नहीं है। सौंदर्य हृदय में प्रकाश है। | 108 | 144 | 53 |
+| Italian | La bellezza non è in faccia. La bellezza è la luce nel cuore. | 122 | 63 | 36 |
+| Japanese | 美は顔にありません。美は心の中の光です。 | 40 | 60 | 39 |
+| Bengali | সৌন্দর্য মুখে নেই। সৌন্দর্য হৃদয় একটি আলো। | 86 | 117 | 41 |
+| Portuguese | A beleza não está na cara. A beleza é a luz no coração. | 110 | 60 | 36 |
+| Russian | Красота не в лицо. Красота - это свет в сердце. | 94 | 82 | 44 |
+| Chinese | 美是不是在脸上。 美是心中的亮光。 | 34 | 49 | 36 |
 
-入力文は siara-cc/Unishox2 の公式テストケースから取得しています。
+The input sentences are taken from the official siara-cc/Unishox2 test cases.
 
-### .NET 標準の圧縮方式との比較
+### Comparison with the standard .NET compression methods
 
-[LICENSE-UPL.txt](https://github.com/sakilabo/unishox2-dotnet/blob/main/LICENSE-UPL.txt) を圧縮した結果です。Unishox2 は `CompressOptions.Default`、.NET 標準の各方式は .NET 10.0.11 の `CompressionLevel.Optimal` を使用しています。
+Results of compressing [LICENSE-UPL.txt](https://github.com/sakilabo/unishox2-dotnet/blob/main/LICENSE-UPL.txt). Unishox2 uses `CompressOptions.Default`, and each standard .NET method uses `CompressionLevel.Optimal` on .NET 10.0.11.
 
-| 方式 | バイト数 |
+| Method | Bytes |
 | --- | --- |
-| 圧縮前 | 1,833 |
+| Uncompressed | 1,833 |
 | Unishox2 | 1,077 |
 | Deflate | 1,002 |
 | GZip | 1,020 |
 | Brotli | 965 |
 | ZLib | 1,008 |
 
-## 導入
+## Installation
 
-現在は開発版 `0.1.0` で、NuGet.org には未公開です。ソースから [NuGet パッケージを生成](#nuget-パッケージの生成)し、利用するアプリのプロジェクトフォルダーで追加してください。
+This is development version `0.1.0` and it is not published on NuGet.org yet. [Build the NuGet package](#building-the-nuget-package) from source, then add it in the project folder of the application that uses it.
 
 ```sh
-dotnet add package Sakilabo.Unishox2 --version 0.1.0 --source "<生成したartifactsフォルダーの絶対パス>"
+dotnet add package Sakilabo.Unishox2 --version 0.1.0 --source "<absolute path of the artifacts folder you produced>"
 ```
 
-## 使い方
+## Usage
 
-### 文字列を圧縮して保存する
+### Compress a string and save it
 
 ```csharp
 using System.IO;
@@ -72,7 +74,7 @@ public static void SaveText(string path, string text)
 }
 ```
 
-### 保存済みのデータを読み出す
+### Read saved data back
 
 ```csharp
 public static string LoadText(string path)
@@ -82,7 +84,7 @@ public static string LoadText(string path)
 }
 ```
 
-### UTF-8 のファイルを圧縮する
+### Compress a UTF-8 file
 
 ```csharp
 byte[] utf8 = File.ReadAllBytes("message.txt");
@@ -90,11 +92,11 @@ byte[] compressed = Unishox2.Compress(utf8);
 File.WriteAllBytes("message.usx", compressed);
 ```
 
-`Compress` は `string` と UTF-8 の `byte[]` を受け付けます。`Decompress` の戻り値は `string` です。
+`Compress` accepts a `string` or a UTF-8 `byte[]`. `Decompress` returns a `string`.
 
-### 文字列配列を圧縮する
+### Compress an array of strings
 
-`CompressLines` は、同じ要素内や前の要素の繰り返しを利用して文字列配列を圧縮します。
+`CompressLines` compresses an array of strings by exploiting repetitions within the same element and in earlier elements.
 
 ```csharp
 public static byte[][] CompressMessages(string[] messages)
@@ -103,7 +105,7 @@ public static byte[][] CompressMessages(string[] messages)
 }
 ```
 
-### 圧縮された配列を復元する
+### Restore a compressed array
 
 ```csharp
 public static string[] DecompressMessages(byte[][] data)
@@ -112,33 +114,33 @@ public static string[] DecompressMessages(byte[][] data)
 }
 ```
 
-### オプションを指定する
+### Specify options
 
-圧縮・展開の設定は `CompressOption` で指定します。基本的な設定は `CompressOptions` に定義されています。
+Compression and decompression settings are given as a `CompressOption`. The basic sets of settings are defined on `CompressOptions`.
 
-- `Default`：汎用。入力の種類を限定しない場合に使用。
-- `AlphaOnly`：英字のみのテキスト向け。
-- `AlphaNumOnly`：英数字のテキスト向け。
-- `AlphaNumSymOnly`：英数字と記号のテキスト向け。
-- `AlphaNumSymOnlyText`：`AlphaNumSymOnly` と同じ設定。参照元の `USX_PSET_ALPHA_NUM_SYM_ONLY_TXT` との名前の対応を保つために提供。
-- `FavorAlpha`：英字が多いテキスト向け。
-- `FavorDict`：繰り返しが多いテキスト向け。
-- `FavorSym`：記号が多いテキスト向け。
-- `FavorUmlaut`：ウムラウトなどの文字が多いテキスト向け。
-- `NoDict`：繰り返しがないテキスト向け。
-- `NoUnicode`：ASCII のテキスト向け。
-- `NoUnicodeFavorText`：ASCII の文章向け。
-- `Url`：URL 向け。
-- `Json`：JSON 向け。
-- `JsonNoUnicode`：ASCII の JSON 向け。
-- `Xml`：XML 向け。
-- `Html`：HTML 向け。
+- `Default`: general purpose, for when the kind of input is not restricted.
+- `AlphaOnly`: for text made up of letters only.
+- `AlphaNumOnly`: for text made up of letters and digits.
+- `AlphaNumSymOnly`: for text made up of letters, digits and symbols.
+- `AlphaNumSymOnlyText`: the same settings as `AlphaNumSymOnly`, provided to keep the name aligned with `USX_PSET_ALPHA_NUM_SYM_ONLY_TXT` upstream.
+- `FavorAlpha`: for text dominated by letters.
+- `FavorDict`: for text with many repetitions.
+- `FavorSym`: for text dominated by symbols.
+- `FavorUmlaut`: for text with many umlauts and similar characters.
+- `NoDict`: for text without repetitions.
+- `NoUnicode`: for ASCII text.
+- `NoUnicodeFavorText`: for ASCII prose.
+- `Url`: for URLs.
+- `Json`: for JSON.
+- `JsonNoUnicode`: for ASCII JSON.
+- `Xml`: for XML.
+- `Html`: for HTML.
 
-符号や頻出文字列などの具体的な値は [Tables.cs](https://github.com/sakilabo/unishox2-dotnet/blob/main/src/Sakilabo.Unishox2/Internal/Tables.cs) を参照してください。
+For the concrete values of the codes and frequent sequences, see [Tables.cs](https://github.com/sakilabo/unishox2-dotnet/blob/main/src/Sakilabo.Unishox2/Internal/Tables.cs).
 
-各プロパティは、その設定で初期化した新しい `CompressOption` を返します。`new CompressOption()` は `CompressOptions.Default` と同じ設定になります。
+Each property returns a new `CompressOption` initialized with those settings. `new CompressOption()` produces the same settings as `CompressOptions.Default`.
 
-作成した `CompressOption` を `Compress` の第2引数に渡します。JSON 用の定義済み設定を使って保存する例です。
+Pass the `CompressOption` you created as the second argument to `Compress`. Here is an example that saves data using the predefined settings for JSON.
 
 ```csharp
 CompressOption options = CompressOptions.Json;
@@ -146,7 +148,7 @@ byte[] compressed = Unishox2.Compress("{\"status\":\"ready\"}", options);
 File.WriteAllBytes("status.usx", compressed);
 ```
 
-保存したデータを読み出すときは、圧縮時と同じ設定を `Decompress` の第2引数に渡します。
+When reading the saved data back, pass the same settings as the second argument to `Decompress`.
 
 ```csharp
 byte[] data = File.ReadAllBytes("status.usx");
@@ -154,150 +156,150 @@ CompressOption options = CompressOptions.Json;
 string json = Unishox2.Decompress(data, options);
 ```
 
-`CompressLines` と `DecompressLines` も、第2引数に `CompressOption` を指定できます。これら4つのメソッドで第2引数を省略すると、`CompressOptions.Default` と同じ設定で処理します。
+`CompressLines` and `DecompressLines` also take a `CompressOption` as their second argument. When the second argument is omitted on any of these four methods, the same settings as `CompressOptions.Default` are used.
 
-設定は圧縮データに含まれていません。`CompressOption` はシリアライズ可能です。
+The settings are not contained in the compressed data. `CompressOption` is serializable.
 
-| 設定 | 用途 |
+| Setting | Purpose |
 | --- | --- |
-| `FrequentSequences` | よく出現する文字列を `string[]` で最大6個指定。末尾の未使用要素は省略可能。`null`・空文字列は `ArgumentException`。日本語も使用可能。 |
-| `Templates` | 日付や時刻などの定型パターンを最大5個指定。`Templates.IsoDate` などの定数を使用可能。 |
-| `HCodes` | 5文字グループそれぞれの水平符号とビット長を指定。使用しないグループは `null`。 |
+| `FrequentSequences` | Up to 6 frequently occurring strings, given as a `string[]`. Unused trailing elements may be omitted. `null` and empty strings raise an `ArgumentException`. Non-ASCII text, such as Japanese, may be used. |
+| `Templates` | Up to 5 fixed patterns such as dates and times. Constants such as `Templates.IsoDate` may be used. |
+| `HCodes` | The horizontal code and bit length for each of the 5 character groups. Use `null` for a group that is not used. |
 
-生成した `CompressOption` の各設定は変更できます。例えば、独自の頻出文字列は次のように指定します。
+Every setting on a `CompressOption` you create can be changed. For example, custom frequent sequences are given like this.
 
 ```csharp
 var options = new CompressOption
 {
     FrequentSequences = new[]
     {
-        "処理開始", "処理完了", "待機中", "接続成功", "接続失敗", "再試行"
+        "started", "completed", "waiting", "connected", "disconnected", "retrying"
     }
 };
-byte[] compressed = Unishox2.Compress("処理開始：接続成功、処理完了", options);
+byte[] compressed = Unishox2.Compress("started: connected, completed", options);
 File.WriteAllBytes("result.usx", compressed);
 ```
 
-`AlphaOnly` など入力の文字種を限定する設定で、表現できない文字が渡された場合は `UnishoxFormatException` を送出します。
+When a setting that restricts the character classes of the input, such as `AlphaOnly`, is given a character it cannot represent, a `UnishoxFormatException` is thrown.
 
-## siara-cc/Unishox2 との互換性・非互換性
+## Compatibility and incompatibilities with siara-cc/Unishox2
 
-文字列の途中にある UUID も専用形式で圧縮します。siara-cc/Unishox2 との相互展開を確認しています。
+A UUID appearing in the middle of a string is also compressed with the dedicated format. Cross-decompression with siara-cc/Unishox2 has been verified.
 
-### lines の自己参照における実装差
+### An implementation difference in lines self-references
 
-lines で自己参照を使うデータのうち、復元時の参照先がまだ出力されていない範囲まで伸びる場合について、Sakilabo.Unishox2 は逐次コピーで復元します。
+For data that uses a lines self-reference whose source, at restore time, extends into a range that has not been written yet, Sakilabo.Unishox2 restores it by sequential copying.
 
-この不具合に該当する自己参照を含むデータの扱いは、次のとおりです。
+Data containing a self-reference affected by this defect behaves as follows.
 
-| 圧縮した実装 | `siara-cc/Unishox2` で復元 | Sakilabo.Unishox2 で復元 |
+| Compressed by | Restored by `siara-cc/Unishox2` | Restored by Sakilabo.Unishox2 |
 | --- | --- | --- |
-| `siara-cc/Unishox2` | 正しく復元できない | 復元できる |
-| Sakilabo.Unishox2 | 正しく復元できない | 復元できる |
+| `siara-cc/Unishox2` | Cannot be restored correctly | Can be restored |
+| Sakilabo.Unishox2 | Cannot be restored correctly | Can be restored |
 
-圧縮形式の変更はありません。具体的な比較結果は表のとおりです。
+The compression format is unchanged. The table above gives the concrete comparison result.
 
-対象は、本リポジトリで参照している `siara-cc/Unishox2` の C 実装です。該当コードと検証内容は[C 実装との比較資料](https://github.com/sakilabo/unishox2-dotnet/blob/main/tests/upstream/C実装比較.md)に記載しています。
+This concerns the `siara-cc/Unishox2` C implementation referenced by this repository. The affected code and what was verified are described in [the comparison with the C implementation](https://github.com/sakilabo/unishox2-dotnet/blob/main/tests/upstream/c-implementation-comparison.md).
 
-### lines の NUL 文字（非互換）
+### NUL characters in lines (incompatible)
 
-NUL を通常のデータとして扱い、lines の圧縮・展開の参照処理でも要素全体を対象とします。`siara-cc/Unishox2` は参照処理に `strlen()` を使うため、NUL 以降への参照を含むデータを同実装で復元できない場合があります。
+NUL is treated as ordinary data, and the reference handling during lines compression and decompression covers the whole element. Because `siara-cc/Unishox2` uses `strlen()` for that handling, data containing a reference past a NUL may not be restorable by that implementation.
 
-lines を使わない通常の圧縮でも NUL を扱えます。
+NUL is also handled in ordinary compression, without the lines feature.
 
-## ビルドと通常テスト
+## Building and the normal tests
 
-**必要なもの：.NET 10 SDK。C コンパイラや siara-cc/Unishox2 の submodule の取得は不要です。**
+**What you need: the .NET 10 SDK. No C compiler is required, and the siara-cc/Unishox2 submodule does not need to be fetched.**
 
-以下のコマンドは、すべてこの README があるリポジトリのルートで実行します。
+Run all the commands below at the repository root, where this README lives.
 
 ```sh
 dotnet build Sakilabo.Unishox2.sln -c Release
 dotnet test tests/Sakilabo.Unishox2.Tests/Sakilabo.Unishox2.Tests.csproj -c Release
 ```
 
-通常テストは C# の圧縮・展開、オプション、圧縮データの入出力を検証します。siara-cc/Unishox2 との比較テストはスキップされ、C コードのビルドや実行は行いません。
+The normal tests verify compression and decompression in C#, the options, and reading and writing compressed data. The comparison tests against siara-cc/Unishox2 are skipped, and no C code is built or run.
 
-VS Code では、このフォルダーを開いて `build`、`test`、`pack` タスクを使えます。`Ctrl+Shift+B` は `build` を実行します。通常の CI も C# のビルドと通常テストを実行します。
+In VS Code, open this folder and use the `build`, `test` and `pack` tasks. `Ctrl+Shift+B` runs `build`. CI also builds the C# code and runs the normal tests.
 
-ライブラリ本体のターゲットは `netstandard2.0`、テストプロジェクトのターゲットは `net10.0` です。
+The library targets `netstandard2.0`, and the test project targets `net10.0`.
 
-## siara-cc/Unishox2 との互換性テスト
+## Compatibility tests against siara-cc/Unishox2
 
-**siara-cc/Unishox2 との相互展開を確認するときだけ実行する追加テストです。この実行には C コンパイラが必要です。**
+**These are additional tests, run only when you want to verify cross-decompression with siara-cc/Unishox2. Running them requires a C compiler.**
 
-### 前提条件
+### Prerequisites
 
-通常開発用の .NET 10 SDK に加えて、Git と次の C ビルド環境を用意します。
+In addition to the .NET 10 SDK used for normal development, you need Git and the following C build environment.
 
-| OS | 必要な C ビルド環境 |
+| OS | C build environment required |
 | --- | --- |
-| Windows | Visual Studio 2022 または Build Tools の「C++ によるデスクトップ開発」。MSVC x64 ツールと Windows SDK を含める。 |
-| Linux | `gcc` と C 標準ライブラリの開発用ヘッダー。 |
+| Windows | Visual Studio 2022 or the Build Tools with "Desktop development with C++", including the MSVC x64 tools and the Windows SDK. |
+| Linux | `gcc` and the development headers of the C standard library. |
 
-Windows ではテストが `vswhere.exe` で Visual Studio を検出し、`VsDevCmd.bat` でビルド環境を設定します。通常の PowerShell や VS Code のターミナルから実行できます。
+On Windows the tests locate Visual Studio with `vswhere.exe` and set up the build environment through `VsDevCmd.bat`. They can be run from an ordinary PowerShell session or the VS Code terminal.
 
-### 実行手順
+### Procedure
 
-リポジトリのルートで、まず比較対象の siara-cc/Unishox2 のソースを取得します。
+At the repository root, first fetch the siara-cc/Unishox2 sources to compare against.
 
 ```sh
 git submodule update --init --recursive
 ```
 
-次に、比較テストを有効にして実行します。
+Then enable the comparison tests and run them.
 
 ```sh
 dotnet test tests/Sakilabo.Unishox2.Tests/Sakilabo.Unishox2.Tests.csproj -c Release -p:RequireNativeHarness=true
 ```
 
-このコマンドは通常テストに加えて、次の処理を行います。
+In addition to the normal tests, this command does the following.
 
-1. `tests/upstream/Unishox2/unishox2.c` と `tests/upstream/harness/harness.c` を、Windows では MSVC、Linux では GCC で自動ビルドする。
-2. 作成した C 実行ファイルを起動する。
-3. C# で圧縮したデータの C での展開と、C で圧縮したデータの C# での展開を検証する。
+1. Builds `tests/upstream/Unishox2/unishox2.c` and `tests/upstream/harness/harness.c` automatically, with MSVC on Windows and GCC on Linux.
+2. Starts the C executable it produced.
+3. Verifies that data compressed in C# decompresses in C, and that data compressed in C decompresses in C#.
 
-C ソースを手動でビルドする必要はありません。コンパイラや siara-cc/Unishox2 のソースが見つからない場合、またはビルド・相互展開に失敗した場合は、テストが失敗します。圧縮バイト列の完全一致や圧縮サイズの優劣は判定しません。[非互換部分](#siara-ccunishox2-との互換性非互換性)は Sakilabo.Unishox2 で原文を復元できることを検証します。
+You do not need to build the C sources by hand. The tests fail if the compiler or the siara-cc/Unishox2 sources cannot be found, or if the build or the cross-decompression fails. They do not judge exact equality of the compressed bytes, nor which implementation compresses more tightly. For the [incompatible areas](#compatibility-and-incompatibilities-with-siara-ccunishox2), they verify that Sakilabo.Unishox2 can restore the original text.
 
-C 実行ファイルは比較テスト専用です。ライブラリ本体と NuGet パッケージには含まれていません。
+The C executable exists solely for the comparison tests. It is not part of the library or the NuGet package.
 
-コンパイラ別のビルド設定と比較内容は [C 実装との比較資料](https://github.com/sakilabo/unishox2-dotnet/blob/main/tests/upstream/C実装比較.md) を参照してください。
+For the build settings per compiler and the details of the comparison, see [the comparison with the C implementation](https://github.com/sakilabo/unishox2-dotnet/blob/main/tests/upstream/c-implementation-comparison.md).
 
-## NuGet パッケージの生成
+## Building the NuGet package
 
-リポジトリのルートで実行します。C コンパイラは不要です。
+Run this at the repository root. No C compiler is required.
 
 ```sh
 dotnet pack src/Sakilabo.Unishox2/Sakilabo.Unishox2.csproj -c Release -o artifacts
 ```
 
-`artifacts/` に `.nupkg` とシンボルパッケージ `.snupkg` を生成します。
+This produces the `.nupkg` and the `.snupkg` symbol package in `artifacts/`.
 
-利用するプロジェクトへの追加方法は [導入](#導入) を参照してください。
+For how to add it to a project that uses it, see [Installation](#installation).
 
-## siara-cc/Unishox2 のコードの更新
+## Updating the siara-cc/Unishox2 code
 
-比較用の siara-cc/Unishox2 のコードは `tests/upstream/Unishox2` の git submodule で管理します。
+The siara-cc/Unishox2 code used for comparison is managed as a git submodule at `tests/upstream/Unishox2`.
 
-1. siara-cc/Unishox2 のソースを取得する。
+1. Fetch the siara-cc/Unishox2 sources.
 
    ```sh
    git submodule update --init --recursive
    ```
 
-2. Python 3 で公式テストケースを再生成し、テストプロジェクトへコピーする。
+2. Regenerate the official test cases with Python 3 and copy them into the test project.
 
    ```sh
    python tests/upstream/extract_testcases.py
    python -c "from shutil import copyfile; copyfile('tests/upstream/testcases.json', 'tests/Sakilabo.Unishox2.Tests/UpstreamTestCases.json')"
    ```
 
-3. [siara-cc/Unishox2 との互換性テスト](#siara-ccunishox2-との互換性テスト)を実行する。
-4. この README と [C 実装との比較資料](https://github.com/sakilabo/unishox2-dotnet/blob/main/tests/upstream/C実装比較.md) の確認結果を更新する。
+3. Run the [compatibility tests against siara-cc/Unishox2](#compatibility-tests-against-siara-ccunishox2).
+4. Update the results recorded in this README and in [the comparison with the C implementation](https://github.com/sakilabo/unishox2-dotnet/blob/main/tests/upstream/c-implementation-comparison.md).
 
-## ライセンス
+## License
 
-- siara-cc/Unishox2 に基づく圧縮・展開処理とデータテーブル：[Apache License 2.0](https://github.com/sakilabo/unishox2-dotnet/blob/main/LICENSE-APACHE.txt)。
-- 新規に作成した C# API・ラッパー部分：[UPL 1.0](https://github.com/sakilabo/unishox2-dotnet/blob/main/LICENSE-UPL.txt)。Copyright 2026 株式会社さきラボ。
+- The compression and decompression logic and the data tables based on siara-cc/Unishox2: [Apache License 2.0](https://github.com/sakilabo/unishox2-dotnet/blob/main/LICENSE-APACHE.txt).
+- The newly written C# API and wrapper code: [UPL 1.0](https://github.com/sakilabo/unishox2-dotnet/blob/main/LICENSE-UPL.txt). Copyright 2026 株式会社さきラボ.
 
-適用ライセンスと siara-cc/Unishox2 を含む著作権表記の詳細は [LICENSE](https://github.com/sakilabo/unishox2-dotnet/blob/main/LICENSE) を参照してください。
+For the applicable licenses and the full copyright notices, including those of siara-cc/Unishox2, see [LICENSE](https://github.com/sakilabo/unishox2-dotnet/blob/main/LICENSE).

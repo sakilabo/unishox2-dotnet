@@ -13,7 +13,7 @@ namespace Sakilabo.Unishox2
         Delta,
     }
 
-    /// <summary>ALPHA、SYM、NUM、DICT、DELTA の水平符号。使用しないグループは null で指定する。</summary>
+    /// <summary>Horizontal codes for ALPHA, SYM, NUM, DICT and DELTA. Pass null for a group that is not used.</summary>
     [Serializable]
     public sealed class HCodes : IReadOnlyList<(byte Code, byte Length)?>
     {
@@ -36,7 +36,7 @@ namespace Sakilabo.Unishox2
             {
                 (byte Code, byte Length)? value = _values[i];
                 if (value.HasValue && (value.Value.Length == 0 || value.Value.Length > 8))
-                    throw new ArgumentOutOfRangeException("Length", "符号長は1～8の範囲で指定します。");
+                    throw new ArgumentOutOfRangeException("Length", "Code length must be in the range 1 to 8.");
             }
         }
 

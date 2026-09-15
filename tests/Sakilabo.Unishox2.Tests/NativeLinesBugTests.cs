@@ -1,4 +1,5 @@
-// 自己参照の重なりを含むデータについて、C#での往復とsiara-cc/Unishox2圧縮データの展開を検証する。
+// For data containing overlapping self-references, verifies the C# round-trip and the decompression of
+// data compressed by siara-cc/Unishox2.
 
 using System;
 using System.Linq;
@@ -23,8 +24,8 @@ public class NativeLinesBugTests
     [Fact]
     public void CSharp_SelfReferenceOverlap_RoundTripsCorrectly()
     {
-        // siara-cc/Unishox2と同じ入力を、C# 側(実運用パターン: DecompressLineChain の ctx=0 は
-        // 現在の展開済み出力バッファのみを参照し、原文には一切触れない)で検証する。
+        // Verifies the same input as siara-cc/Unishox2 on the C# side, in the realistic pattern where ctx=0 of
+        // DecompressLineChain refers only to the output buffer decompressed so far and never to the source text.
         string element = "XAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXA";
         string[] elements = { element, "tail" };
 

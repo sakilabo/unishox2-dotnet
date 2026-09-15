@@ -3,16 +3,16 @@ using System.Collections.Generic;
 namespace Sakilabo.Unishox2.Internal
 {
     /// <summary>
-    /// 圧縮側の ILineChain。ctx=0 は現在圧縮中の要素の原文全体、ctx&gt;=1 は
-    /// それより前の要素の原文(呼び出し元が確定させた、圧縮前の生バイト列)。
+    /// The compression side of ILineChain. ctx=0 is the whole source text of the element being compressed,
+    /// and ctx&gt;=1 is the source text of an earlier element: the raw uncompressed bytes settled by the caller.
     /// </summary>
     internal sealed class CompressLineChain : ILineChain
     {
         private readonly byte[] _current;
         private readonly IReadOnlyList<byte[]> _previousElements;
 
-        /// <param name="current">現在圧縮中の要素の原文全体。</param>
-        /// <param name="previousElements">直前の要素から順(index 0 が直前の要素)に並べた、過去の要素の原文。</param>
+        /// <param name="current">The whole source text of the element being compressed.</param>
+        /// <param name="previousElements">The source text of the earlier elements, most recent first, so index 0 is the immediately preceding element.</param>
         public CompressLineChain(byte[] current, IReadOnlyList<byte[]> previousElements)
         {
             _current = current;

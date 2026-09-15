@@ -1,24 +1,24 @@
 namespace Sakilabo.Unishox2
 {
     /// <summary>
-    /// 名前付きの既定テンプレート集合。
-    /// <see cref="CompressOption.Templates"/> にそのまま指定できる。
+    /// Named default templates.
+    /// They can be assigned directly to <see cref="CompressOption.Templates"/>.
     /// </summary>
     public static class Templates
     {
-        /// <summary>ISO 日時 (例: 2026-09-14T12:34:56.789Z)。</summary>
+        /// <summary>ISO date and time, for example 2026-09-14T12:34:56.789Z.</summary>
         public const string IsoDateTime = "tfff-of-tfTtf:rf:rf.fffZ";
 
-        /// <summary>ISO 日付 (例: 2026-09-14)。</summary>
+        /// <summary>ISO date, for example 2026-09-14.</summary>
         public const string IsoDate = "tfff-of-tf";
 
-        /// <summary>米国電話番号 (例: (123) 456-7890)。</summary>
+        /// <summary>US phone number, for example (123) 456-7890.</summary>
         public const string UsPhoneNumber = "(fff) fff-ffff";
 
-        /// <summary>ISO 時刻 (例: 12:34:56)。</summary>
+        /// <summary>ISO time, for example 12:34:56.</summary>
         public const string IsoTime = "tf:rf:rf";
 
-        /// <summary>既定テンプレート集合。</summary>
+        /// <summary>The default set of templates.</summary>
         public static string[] Default => new[] { IsoDateTime, IsoDate, UsPhoneNumber, IsoTime };
     }
 }

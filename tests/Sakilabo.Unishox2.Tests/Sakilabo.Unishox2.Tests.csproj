@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <!-- siara-cc/Unishox2C版比較は明示的に指定した場合だけ実行する。通常テストにCコンパイラは不要。 -->
+    <!-- The comparison against the siara-cc/Unishox2 C implementation runs only when requested explicitly. The normal test run needs no C compiler. -->
     <DefineConstants Condition="'$(RequireNativeHarness)' == 'true'">$(DefineConstants);REQUIRE_NATIVE_HARNESS</DefineConstants>
   </PropertyGroup>
 

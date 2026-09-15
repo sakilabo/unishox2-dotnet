@@ -1,4 +1,4 @@
-// lines の要素間参照と、現在の出力バッファに重なる自己参照を確認する。
+// Checks references between lines elements, and self-references that overlap the current output buffer.
 
 using System.Collections.Generic;
 using Sakilabo.Unishox2;
@@ -27,7 +27,7 @@ public class LinesAndSelfReferenceTests
         Assert.Equal(elements, decompressed);
     }
 
-    // 未出力範囲まで伸びる自己参照を、逐次コピーで復元する。
+    // Restores, by sequential copying, a self-reference that extends into the not-yet-written range.
     [Theory]
     [InlineData("XAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXA")]
     [InlineData("ABABABABABABABABABABABABABABABABABABAB")]

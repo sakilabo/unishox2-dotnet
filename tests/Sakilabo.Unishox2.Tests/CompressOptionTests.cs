@@ -1,4 +1,4 @@
-// 定義済み設定の独立性と、変更した設定による往復を確認する。
+// Checks that the predefined settings are independent, and that a modified setting still round-trips.
 
 using System.Linq;
 using Sakilabo.Unishox2;

@@ -14,7 +14,7 @@
     <Version>0.1.0</Version>
     <PackageId>Sakilabo.Unishox2</PackageId>
     <Product>Sakilabo.Unishox2</Product>
-    <Description>Unishox2 圧縮アルゴリズムの C# 実装(.NET Standard 2.0、ネイティブ依存なし)。</Description>
+    <Description>A C# implementation of the Unishox2 short-string compression algorithm for .NET Standard 2.0, with no native dependencies.</Description>
     <Authors>株式会社さきラボ (Sakilabo Corporation Ltd.)</Authors>
     <Company>株式会社さきラボ (Sakilabo Corporation Ltd.)</Company>
     <Copyright>Copyright 2026 株式会社さきラボ (Sakilabo Corporation Ltd.); Copyright (C) 2020 Siara Logics (cc)</Copyright>

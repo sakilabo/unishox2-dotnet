@@ -5,7 +5,7 @@ namespace Sakilabo.Unishox2.Internal
 {
     internal static class Utf8Strict
     {
-        /// <summary>string を厳密な UTF-8 バイト列へ変換する。孤立サロゲートは例外にする。</summary>
+        /// <summary>Converts a string to a strict UTF-8 byte sequence. Unpaired surrogates raise an exception.</summary>
         public static byte[] GetBytesStrict(string s)
         {
             var encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
@@ -15,11 +15,11 @@ namespace Sakilabo.Unishox2.Internal
             }
             catch (EncoderFallbackException ex)
             {
-                throw new UnishoxFormatException("入力文字列に孤立サロゲートなど、UTF-8 として表現できない文字が含まれています。", ex);
+                throw new UnishoxFormatException("The input string contains characters that cannot be represented in UTF-8, such as unpaired surrogates.", ex);
             }
         }
 
-        /// <summary>UTF-8 バイト列を厳密に検証しながら string へ変換する。不正な符号列は例外にする。</summary>
+        /// <summary>Converts a UTF-8 byte sequence to a string with strict validation. Invalid sequences raise an exception.</summary>
         public static string GetStringStrict(byte[] bytes)
         {
             var encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
@@ -29,11 +29,11 @@ namespace Sakilabo.Unishox2.Internal
             }
             catch (DecoderFallbackException ex)
             {
-                throw new UnishoxFormatException("入力バイト列が正しい UTF-8 として解釈できません。", ex);
+                throw new UnishoxFormatException("The input byte sequence is not valid UTF-8.", ex);
             }
         }
 
-        /// <summary>UTF-8 バイト列として妥当かどうかだけを検証する(文字列化しない)。</summary>
+        /// <summary>Validates only that the byte sequence is well-formed UTF-8, without producing a string.</summary>
         public static void ValidateStrict(byte[] bytes)
         {
             var encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
@@ -43,7 +43,7 @@ namespace Sakilabo.Unishox2.Internal
             }
             catch (DecoderFallbackException ex)
             {
-                throw new UnishoxFormatException("入力バイト列が正しい UTF-8 として解釈できません。", ex);
+                throw new UnishoxFormatException("The input byte sequence is not valid UTF-8.", ex);
             }
         }
     }

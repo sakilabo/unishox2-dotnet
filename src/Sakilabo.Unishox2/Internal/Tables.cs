@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace Sakilabo.Unishox2.Internal
 {
     /// <summary>
-    /// 圧縮・展開で共有する符号表、文字集合、定義済み設定値。
+    /// Code tables, character sets and predefined setting values shared by compression and decompression.
     /// </summary>
     internal static class Tables
     {
@@ -37,7 +37,7 @@ namespace Sakilabo.Unishox2.Internal
 
         public const int UsxOffset94 = 33;
 
-        // usx_sets: 3x28 の文字集合テーブル(ALPHA/SYM/NUM)。0 は「該当なし」。
+        // usx_sets: the 3x28 character set table for ALPHA, SYM and NUM. 0 means "no character".
         public static readonly byte[][] UsxSets = new byte[][]
         {
             new byte[] {  0, (byte)' ', (byte)'e', (byte)'t', (byte)'a', (byte)'o', (byte)'i', (byte)'n',
@@ -51,7 +51,7 @@ namespace Sakilabo.Unishox2.Internal
                         (byte)'=', (byte)'+', (byte)'$', (byte)'%', (byte)'#', 0, 0, 0, 0, 0 },
         };
 
-        // usx_vcodes: MSB から詰める垂直符号
+        // usx_vcodes: vertical codes packed from the MSB
         public static readonly byte[] UsxVCodes = new byte[]
         {
             0x00, 0x40, 0x60, 0x80, 0x90, 0xA0, 0xB0,
@@ -107,7 +107,7 @@ namespace Sakilabo.Unishox2.Internal
 
         public static readonly byte[] LenMasks = UsxMask;
 
-        // usx_code_94: 文字(33..126) -> (hcode<<5)|vcode。init_coder() 相当を静的初期化で行う。
+        // usx_code_94: character (33..126) -> (hcode<<5)|vcode. The equivalent of init_coder(), done in a static initializer.
         public static readonly byte[] UsxCode94 = BuildUsxCode94();
 
         private static byte[] BuildUsxCode94()

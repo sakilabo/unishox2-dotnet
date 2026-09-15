@@ -1,8 +1,7 @@
-// 独自の FrequentSequences / Templates が UTF-8 バイト列(ASCII に限らない)として
-// 正しく扱われることを検証する。siara-cc/Unishox2 unishox2.c は頻出文字列を const char* の
-// バイト列比較・コピーとして扱っており、ASCII に限定していないため、
-// 日本語を含む頻出文字列でもsiara-cc/Unishox2(ネイティブハーネスの X/Y コマンド)と
-// 相互展開できることを確認する。
+// Verifies that custom FrequentSequences and Templates are handled correctly as UTF-8 byte sequences,
+// not only as ASCII. siara-cc/Unishox2 unishox2.c compares and copies frequent sequences as const char*
+// byte sequences without restricting them to ASCII, so this confirms that frequent sequences containing
+// Japanese still cross-decompress with siara-cc/Unishox2 through the X and Y commands of the native harness.
 
 using System;
 using System.Collections.Generic;

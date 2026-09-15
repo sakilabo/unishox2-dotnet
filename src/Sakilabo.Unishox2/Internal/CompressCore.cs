@@ -44,7 +44,7 @@ namespace Sakilabo.Unishox2.Internal
                 byte cInByte = input[l];
                 char cIn = (char)cInByte;
 
-                // RPT_CODE: 4 文字以上連続する同一文字
+                // RPT_CODE: the same character repeated 4 or more times
                 if (l != 0 && len > 4 && l < len - 4 && hCodes[HCodeGroup.Number].HasValue)
                 {
                     if (cInByte == input[l - 1] && cInByte == input[l + 1] && cInByte == input[l + 2] && cInByte == input[l + 3])
@@ -60,7 +60,7 @@ namespace Sakilabo.Unishox2.Internal
                     }
                 }
 
-                // UUID(GUID) 検出: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx (36 文字)
+                // UUID (GUID) detection: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx, 36 characters
                 if (l <= len - 36 && hCodes[HCodeGroup.Number].HasValue)
                 {
                     if (input[l + 8] == '-' && input[l + 13] == '-' && input[l + 18] == '-' && input[l + 23] == '-')
@@ -70,7 +70,7 @@ namespace Sakilabo.Unishox2.Internal
                         for (; uidPos < l + 36; uidPos++)
                         {
                             char cUid = (char)input[uidPos];
-                            // UUID の先頭からの相対位置でハイフンを判定する。
+                            // Check for hyphens by position relative to the start of the UUID.
                             int relPos = uidPos - l;
                             if (cUid == '-' && (relPos == 8 || relPos == 13 || relPos == 18 || relPos == 23))
                                 continue;
@@ -100,7 +100,7 @@ namespace Sakilabo.Unishox2.Internal
                     }
                 }
 
-                // HEX 検出: 4 文字以上の 16 進数列
+                // HEX detection: a run of 4 or more hexadecimal digits
                 if (l < len - 5 && hCodes[HCodeGroup.Number].HasValue)
                 {
                     NibbleType hexType = NibbleType.Num;
@@ -137,8 +137,8 @@ namespace Sakilabo.Unishox2.Internal
                     }
                 }
 
-                // テンプレートマッチ(テンプレート文字列は UTF-8 バイト列。'f'/'F'/'r'/'t'/'o' は
-                // ASCII の 1 バイトなので、UTF-8 の継続バイト(0x80 以上)と衝突しない)
+                // Template match. Template strings are UTF-8 byte sequences; 'f', 'F', 'r', 't' and 'o'
+                // are single ASCII bytes, so they never collide with UTF-8 continuation bytes (0x80 and above).
                 if (templates.Length != 0)
                 {
                     int matchedTemplate = -1;
@@ -197,7 +197,7 @@ namespace Sakilabo.Unishox2.Internal
                         continue;
                 }
 
-                // 頻出シーケンス(UTF-8 バイト列として比較する)
+                // Frequent sequences, compared as UTF-8 byte sequences
                 int matchedFreq = -1;
                 for (int fi = 0; fi < freqSeq.Length; fi++)
                 {

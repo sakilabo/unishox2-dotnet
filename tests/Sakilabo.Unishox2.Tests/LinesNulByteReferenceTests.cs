@@ -1,8 +1,8 @@
-// lines 機能で NUL を通常のデータとして扱う仕様の検証。
-// NativeLinesNulByteTests.cs はsiara-cc/Unishox2(C)が生成した圧縮データを Sakilabo.Unishox2 が正しく
-// 展開できることを検証する。このファイルは Sakilabo.Unishox2 自身が NUL 以降を参照検索の
-// 対象に含めること自体を、内部の TryMatchLine を直接呼んで検証する
-// (単なる往復検証だけでは、参照検索が実際に NUL を跨いだ/越えたかを確認できないため)。
+// Verifies that the lines feature treats NUL as ordinary data.
+// NativeLinesNulByteTests.cs checks that Sakilabo.Unishox2 correctly decompresses data produced by the
+// siara-cc/Unishox2 C implementation. This file instead calls the internal TryMatchLine directly to check
+// that Sakilabo.Unishox2 itself includes the region past a NUL in the reference search, because a plain
+// round-trip cannot show whether the search actually crossed or passed a NUL.
 
 using System.Linq;
 using System.Text;
@@ -13,9 +13,9 @@ namespace Sakilabo.Unishox2.Tests;
 public class LinesNulByteReferenceTests
 {
     /// <summary>
-    /// 現在要素の自己参照(ctx=0)。"AB\0CDEFG" を 2 回繰り返した 16 バイトのうち、
-    /// 2 回目(l=8..15)は 1 回目(0..7)全体と一致する。この一致区間は index 2 の NUL を
-    /// 跨ぐため、参照検索が NUL を跨いで一致を見つけることを直接確認する。
+    /// A self-reference within the current element (ctx=0). Of the 16 bytes formed by repeating
+    /// "AB\0CDEFG" twice, the second copy (l=8..15) matches the whole of the first (0..7). That match
+    /// spans the NUL at index 2, so this directly confirms that the reference search finds matches across a NUL.
     /// </summary>
     [Fact]
     public void TryMatchLine_FindsSelfReferenceSpanningEmbeddedNul()
@@ -35,10 +35,10 @@ public class LinesNulByteReferenceTests
     }
 
     /// <summary>
-    /// 直前の要素(ctx=1)が "X\0HELLO!" で、NUL(index 1)の後ろにしか一致対象("HELLO!")が
-    /// 無い場合。strlen() で打ち切ると previous の可視範囲は "X" の 1 バイトだけになり、
-    /// この一致は原理的に見つけられない。GetLength が全長を返すことで、NUL より後ろの
-    /// 領域も参照検索の対象になることを直接確認する。
+    /// The preceding element (ctx=1) is "X\0HELLO!", where the only match candidate ("HELLO!") lies past
+    /// the NUL at index 1. Truncating at strlen() would leave just the single byte "X" visible in previous,
+    /// making the match impossible to find. Because GetLength returns the full length, this directly confirms
+    /// that the region past a NUL is also searched.
     /// </summary>
     [Fact]
     public void TryMatchLine_FindsPreviousElementReferenceLocatedAfterEmbeddedNul()
@@ -58,8 +58,8 @@ public class LinesNulByteReferenceTests
     }
 
     /// <summary>
-    /// 自己参照の重なりコピー(短周期反復)が、NUL を跨いだ状態でも正しく往復することを
-    /// 公開 API で確認する(DecodeRepeat の 1 バイトずつのコピーが NUL 込みでも成立するか)。
+    /// Confirms through the public API that an overlapping self-reference copy, a short-period repetition,
+    /// still round-trips across a NUL, that is, that the byte-at-a-time copy in DecodeRepeat holds with NUL included.
     /// </summary>
     [Theory]
     [InlineData("AB\0AB\0AB\0AB\0AB\0AB\0AB\0AB\0")]
@@ -73,7 +73,7 @@ public class LinesNulByteReferenceTests
     }
 
     /// <summary>
-    /// 直前の要素の NUL より後ろの内容("HELLOWORLD")を、次の要素が参照する場合の往復。
+    /// A round-trip where the next element references content past the NUL of the preceding element ("HELLOWORLD").
     /// </summary>
     [Fact]
     public void CrossElementReference_ToContentAfterEmbeddedNul_RoundTrips()
@@ -85,9 +85,9 @@ public class LinesNulByteReferenceTests
     }
 
     /// <summary>
-    /// マルチバイト UTF-8 文字と NUL が混在する要素の自己参照往復。UTF-8 の部分一致回避
-    /// (TryMatchLine の継続バイト巻き戻し)が、NUL を跨ぐ拡張後の範囲でも文字境界を壊さない
-    /// ことを確認する。
+    /// A self-reference round-trip for an element mixing multi-byte UTF-8 characters and NUL. Confirms that
+    /// the avoidance of partial UTF-8 matches, the continuation-byte rewind in TryMatchLine, still respects
+    /// character boundaries over the extended range that spans a NUL.
     /// </summary>
     [Fact]
     public void EmbeddedNulWithMultibyteUtf8_SelfReference_RoundTrips()

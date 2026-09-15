@@ -5,12 +5,12 @@ using Sakilabo.Unishox2.Internal;
 namespace Sakilabo.Unishox2
 {
     /// <summary>
-    /// Unishox2 による文字列圧縮・展開の入口。CompressOption は呼び出しごとに指定し、
-    /// 圧縮結果(byte[]/byte[][])には保持しない。
+    /// Entry point for Unishox2 string compression and decompression. A CompressOption is supplied
+    /// per call and is not retained in the compressed result (byte[]/byte[][]).
     /// </summary>
     public static class Unishox2
     {
-        /// <summary>文字列を、指定した設定(省略時は既定設定)で圧縮する。</summary>
+        /// <summary>Compresses a string using the given options, or the default options when omitted.</summary>
         public static byte[] Compress(string input, CompressOption? options = null)
         {
             if (input == null)
@@ -19,7 +19,7 @@ namespace Sakilabo.Unishox2
             return CompressSingle(utf8, options);
         }
 
-        /// <summary>UTF-8 バイト列を、指定した設定(省略時は既定設定)で圧縮する。</summary>
+        /// <summary>Compresses a UTF-8 byte sequence using the given options, or the default options when omitted.</summary>
         public static byte[] Compress(byte[] utf8Bytes, CompressOption? options = null)
         {
             if (utf8Bytes == null)
@@ -36,8 +36,8 @@ namespace Sakilabo.Unishox2
         }
 
         /// <summary>
-        /// 文字列の配列を lines として圧縮する。各要素は、Unishox2 の lines 機能で前の要素を
-        /// 参照しながら圧縮する。空配列は 0 要素の結果を返す。
+        /// Compresses an array of strings as lines. Each element is compressed while referring to the
+        /// preceding elements through the Unishox2 lines feature. An empty array yields a zero-element result.
         /// </summary>
         public static byte[][] CompressLines(string[] input, CompressOption? options = null)
         {
@@ -46,15 +46,15 @@ namespace Sakilabo.Unishox2
             var utf8Elements = new byte[input.Length][];
             for (int i = 0; i < input.Length; i++)
             {
-                string element = input[i] ?? throw new ArgumentException("input に null 要素を含めることはできません。", nameof(input));
+                string element = input[i] ?? throw new ArgumentException("input must not contain null elements.", nameof(input));
                 utf8Elements[i] = Utf8Strict.GetBytesStrict(element);
             }
             return CompressLinesCore(utf8Elements, options);
         }
 
         /// <summary>
-        /// UTF-8 バイト列の配列を lines として圧縮する。各要素は、Unishox2 の lines 機能で前の要素を
-        /// 参照しながら圧縮する。空配列は 0 要素の結果を返す。
+        /// Compresses an array of UTF-8 byte sequences as lines. Each element is compressed while referring to
+        /// the preceding elements through the Unishox2 lines feature. An empty array yields a zero-element result.
         /// </summary>
         public static byte[][] CompressLines(byte[][] utf8Elements, CompressOption? options = null)
         {
@@ -63,7 +63,7 @@ namespace Sakilabo.Unishox2
             var validated = new byte[utf8Elements.Length][];
             for (int i = 0; i < utf8Elements.Length; i++)
             {
-                byte[] element = utf8Elements[i] ?? throw new ArgumentException("utf8Elements に null 要素を含めることはできません。", nameof(utf8Elements));
+                byte[] element = utf8Elements[i] ?? throw new ArgumentException("utf8Elements must not contain null elements.", nameof(utf8Elements));
                 Utf8Strict.ValidateStrict(element);
                 validated[i] = element;
             }
@@ -74,7 +74,7 @@ namespace Sakilabo.Unishox2
         {
             var settings = EffectiveSettings.Resolve(options);
             var compressedParts = new byte[elements.Length][];
-            var previousElements = new List<byte[]>(); // index 0 が直前の要素
+            var previousElements = new List<byte[]>(); // index 0 holds the immediately preceding element
             for (int i = 0; i < elements.Length; i++)
             {
                 var chain = new CompressLineChain(elements[i], previousElements);
@@ -86,9 +86,10 @@ namespace Sakilabo.Unishox2
         }
 
         /// <summary>
-        /// Unishox2 形式の圧縮バイト列 1 件(<see cref="Compress(string, CompressOption?)"/> 等、
-        /// lines ではない圧縮の結果)を、指定した設定(省略時は既定設定)で元の文字列へ展開する。
-        /// options は圧縮時に渡したものと同じ内容を渡すこと。
+        /// Decompresses a single Unishox2 compressed byte sequence (the result of
+        /// <see cref="Compress(string, CompressOption?)"/> and friends, not of a lines compression)
+        /// back into the original string, using the given options or the default options when omitted.
+        /// The options must match those passed at compression time.
         /// </summary>
         public static string Decompress(byte[] data, CompressOption? options = null)
         {
@@ -101,20 +102,21 @@ namespace Sakilabo.Unishox2
         }
 
         /// <summary>
-        /// Unishox2 形式の圧縮バイト列の配列(<see cref="CompressLines(string[], CompressOption?)"/> 等の結果)を、
-        /// 指定した設定(省略時は既定設定)で要素ごとの文字列の配列へ展開する。
-        /// options は圧縮時に渡したものと同じ内容を渡すこと。
+        /// Decompresses an array of Unishox2 compressed byte sequences (the result of
+        /// <see cref="CompressLines(string[], CompressOption?)"/> and friends) into a string per element,
+        /// using the given options or the default options when omitted.
+        /// The options must match those passed at compression time.
         /// </summary>
         public static string[] DecompressLines(byte[][] data, CompressOption? options = null)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
             var settings = EffectiveSettings.Resolve(options);
-            var decodedElements = new List<byte[]>(); // index 0 が直前の要素
+            var decodedElements = new List<byte[]>(); // index 0 holds the immediately preceding element
             var result = new string[data.Length];
             for (int i = 0; i < data.Length; i++)
             {
-                byte[] element = data[i] ?? throw new ArgumentException("data に null 要素を含めることはできません。", nameof(data));
+                byte[] element = data[i] ?? throw new ArgumentException("data must not contain null elements.", nameof(data));
                 var output = new List<byte>();
                 var chain = new DecompressLineChain(output, decodedElements);
                 DecompressCore.Decompress(element, settings.HCodes, settings.FreqSeq, settings.Templates, output, chain);

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 namespace Sakilabo.Unishox2.Internal
 {
     /// <summary>
-    /// MSB から詰める可変長ビット列を List&lt;byte&gt; へ書き込む。
+    /// Writes a variable-length bit sequence, packed from the MSB, into a List&lt;byte&gt;.
     /// </summary>
     internal sealed class BitWriter
     {
         /// <summary>
-        /// 指定された出力上限を超える書き込みを中断するための内部例外。
+        /// Internal exception used to abort a write that would exceed the configured output limit.
         /// </summary>
         internal sealed class WriteLimitExceededException : System.Exception
         {
@@ -22,18 +22,18 @@ namespace Sakilabo.Unishox2.Internal
             _buffer = new List<byte>();
         }
 
-        /// <summary>現在までに書き込んだビット数。</summary>
+        /// <summary>The number of bits written so far.</summary>
         public int BitLength { get; private set; }
 
-        /// <summary>これまでに書き込んだバイト列(未使用ビットは 0 埋め)。</summary>
+        /// <summary>The bytes written so far, with unused bits padded with zeros.</summary>
         public List<byte> Buffer => _buffer;
 
         public int ByteLength => (BitLength + 7) / 8;
 
         /// <summary>
-        /// 以降の AppendBits を、指定バイト数を超えて新しいバイトへ書き込もうとした時点で
-        /// WriteLimitExceededException を送出するモードにする。終端コードが確定済みの
-        /// バイト境界を超えないようにするために使う。
+        /// Puts subsequent AppendBits calls into a mode that throws WriteLimitExceededException as soon
+        /// as a write would move past the given byte count into a new byte. Used to keep the terminator
+        /// code from crossing the byte boundary that has already been settled.
         /// </summary>
         public void SetByteLimit(int limitBytes)
         {
@@ -46,7 +46,7 @@ namespace Sakilabo.Unishox2.Internal
         }
 
         /// <summary>
-        /// code の上位 len ビット(MSB 側)を書き込む。
+        /// Writes the top len bits of code, taken from the MSB side.
         /// </summary>
         public void AppendBits(byte code, int len)
         {
@@ -74,7 +74,7 @@ namespace Sakilabo.Unishox2.Internal
         }
 
         /// <summary>
-        /// 末尾を 8 の倍数ビットまで指定値で埋める。
+        /// Pads the tail with the given value until the bit count is a multiple of 8.
         /// </summary>
         public void PadToByteBoundary(bool padWithOnes)
         {
@@ -84,7 +84,7 @@ namespace Sakilabo.Unishox2.Internal
             AppendBits(padWithOnes ? (byte)0xFF : (byte)0x00, rem);
         }
 
-        /// <summary>書き込み済みの bitNo 番目のビットを読む(末尾パディング判定用)。</summary>
+        /// <summary>Reads bit bitNo from what has been written, used to inspect the tail padding.</summary>
         public bool GetBit(int bitNo)
         {
             int byteIndex = bitNo / 8;
@@ -94,8 +94,8 @@ namespace Sakilabo.Unishox2.Internal
         }
 
         /// <summary>
-        /// 書き込み位置を過去のビット位置まで巻き戻す。以降の書き込みは同じバイト位置へ
-        /// OR で重ねられる。
+        /// Rewinds the write position back to an earlier bit. Subsequent writes are OR-ed onto
+        /// the same byte positions.
         /// </summary>
         public void Rewind(int bitLength)
         {

@@ -1,5 +1,7 @@
 # tests/upstream
 
+英語版は [c-implementation-comparison.md](./c-implementation-comparison.md) にあります。
+
 Sakilabo.Unishox2 のテスト・検証専用に配置している、外部資料(siara-cc/Unishox2)と検証ツールです(siara-cc/Unishox2 そのものではなく、Sakilabo.Unishox2 独自の検証資料)。
 
 - `Unishox2/` — [siara-cc/Unishox2](https://github.com/siara-cc/Unishox2) の git submodule。初回クローン後は `git submodule update --init --recursive` で取得する。ライセンスは Apache License 2.0(著作権表示 `Copyright (C) 2020 Siara Logics (cc)`)。Sakilabo.Unishox2 のソースコードは変更していない。
@@ -10,13 +12,13 @@ siara-cc/Unishox2 との比較は `dotnet test -p:RequireNativeHarness=true` で
 
 通常のテストはOSにかかわらずC#のみで実行する。Cコンパイラも siara-cc/Unishox2 の submoduleも不要。C 実装との比較を指定しなければ該当16件をスキップし、コンパイラの検出・ビルドも行わない。比較を指定した場合にビルド・実行できなければ、診断情報を含むテスト失敗として扱う。
 
-実行手順と前提条件は [README の互換性テスト](../../README.md#siara-ccunishox2-との互換性テスト)を参照。
+実行手順と前提条件は [README の互換性テスト](../../README.ja.md#siara-ccunishox2-との互換性テスト)を参照。
 
 ## lines 機能における NUL バイトの扱い（非互換）
 
 Sakilabo.Unishox2 は NUL を終端扱いせず、圧縮・展開の参照処理でも要素全体を対象とする。圧縮側の `CompressLineChain.GetLength` は配列長、展開側の `DecompressLineChain.GetLength` は現在の出力長または過去要素の配列長を返す。
 
-siara-cc/Unishox2 の `matchLine()` と `decodeRepeat()` は、現在要素（ctx=0）と過去要素のどちらにも `strlen()` を使う。NUL 以降への参照を含む Sakilabo.Unishox2 の圧縮データは、siara-cc/Unishox2 で復元できない場合がある。これは許容する非互換性であり、圧縮形式自体は変更しない。[README の非互換性](../../README.md#lines-の-nul-文字非互換)を参照。
+siara-cc/Unishox2 の `matchLine()` と `decodeRepeat()` は、現在要素（ctx=0）と過去要素のどちらにも `strlen()` を使う。NUL 以降への参照を含む Sakilabo.Unishox2 の圧縮データは、siara-cc/Unishox2 で復元できない場合がある。これは許容する非互換性であり、圧縮形式自体は変更しない。[README の非互換性](../../README.ja.md#lines-の-nul-文字非互換)を参照。
 
 `NativeLinesNulByteTests.cs` は siara-cc/Unishox2 が圧縮した NUL 含有データを C# で復元できることを検証する。NUL 以降への参照を含む C# データについて siara-cc/Unishox2 での復元は要求せず、siara-cc/Unishox2 の失敗も合格条件にしない。C# の参照検索・自己参照・過去要素参照・保存後復元は通常のマネージドテストで確認する。
 
@@ -40,11 +42,6 @@ siara-cc/Unishox2 の `matchLine()` と `decodeRepeat()` は、現在要素（ct
 - 影響: l>0 の位置にある UUID は専用の圧縮(4 ビット/nibble の高密度エンコード)が使われず、通常の HEX 検出やリテラルエンコードにフォールバックする。往復性(展開して元の文字列に戻ること)は失われず、圧縮率がやや落ちるだけ。
 - 展開側への影響の有無: `unishox2.c` の展開側(UUID 専用エンコードのニブル列を読み出す箇所)はエスケープコード出現後の位置(l)を一切参照せず、常に 32 ニブルを固定長で読む。UUID 専用エンコードを選ぶかどうかは圧縮側だけの判断であり、生成されるビット列の構造は l==0 でも l>0 でも同一である。そのため圧縮側の判定を相対位置に修正しても、生成されるビット列を展開する側(無改造の siara-cc/Unishox2 の C 実装・Sakilabo.Unishox2 のいずれも)の互換性には影響しない。影響するのは「どちらのエンコードを選ぶか」による圧縮バイト列そのものだけである。
 - Sakilabo.Unishox2 の対応: `uid_pos - l` で判定する。l>0 に UUID を含む入力では圧縮バイト列が異なる場合があるが、双方で相互に展開できることを `NativeUuidCompressionTests.cs` で確認している。
-
-## 圧縮仕様（旧項目3）：終端コードで余分なバイトを増やさない
-
-- `unishox2_compress_lines()` は `append_final_bits()` を呼ぶ際、出力バッファ長(`olen`)を「終端コード追加前に確定していた使用バイト数」に制限して渡します。`append_bits()` はバイト境界を超える書き込みを検出すると失敗を返し、それ以降の書き込みは行われません。そのため、終端コード(`TERM_CODE` 等)は、既存の最後のバイトに空きビットがある場合にのみ部分的に書き込まれ、新しいバイトを消費する完全な終端コードが追加されることはありません。複合側は「入力ビット列の終わりに達したら停止する」ことで終端を検出するため、これで往復は成立します。
-- Sakilabo.Unishox2 の対応: `Internal/BitWriter.cs` に `SetByteLimit()`/`WriteLimitExceededException` を実装し、`CoreHelpers.AppendFinalBits()` で「既に使用中のバイト数」を超える書き込みを検出したら以降の書き込みを中断する、という siara-cc/Unishox2 と同じ制限付き書き込みを再現している。これを実装する前は、常に完全な終端コードを書き込んでしまい、siara-cc/Unishox2 より 1〜2 バイト長い圧縮結果になっていた(実機比較で発覚)。
 
 ## 検証ツール自体(harness.c・NativeHarness.cs)の既知の注意点
 

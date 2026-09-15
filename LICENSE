@@ -1,23 +1,23 @@
 Sakilabo.Unishox2
 
-Unishox2（https://github.com/siara-cc/Unishox2）のC#再実装です。
-適用ライセンスと著作権表示は以下のとおりです。
+A C# re-implementation of Unishox2 (https://github.com/siara-cc/Unishox2).
+The licenses that apply, and the copyright notices, are as follows.
 
-siara-cc/Unishox2 由来のコード
+Code derived from siara-cc/Unishox2
 
-Unishox2に基づく圧縮・展開処理とデータテーブルには
-Apache License 2.0を適用します。全文は LICENSE-APACHE.txt を参照してください。
+The compression and decompression logic and the data tables based on Unishox2
+are licensed under the Apache License 2.0. The full text is in LICENSE-APACHE.txt.
 
     Copyright (C) 2020 Siara Logics (cc)
     Author: Arundale Ramanathan, James Z. M. Gao
     Licensed under the Apache License, Version 2.0
 
-siara-cc/Unishox2 のソースはリポジトリ内の tests/upstream/Unishox2 で管理しています。
+The siara-cc/Unishox2 sources are kept in this repository at tests/upstream/Unishox2.
 
-独自のコード
+Original code
 
-新規に作成したC# API・ラッパー部分には
-Universal Permissive License, Version 1.0（UPL 1.0）を適用します。
-全文は LICENSE-UPL.txt を参照してください。
+The newly written C# API and wrapper code is licensed under the
+Universal Permissive License, Version 1.0 (UPL 1.0).
+The full text is in LICENSE-UPL.txt.
 
     Copyright 2026 株式会社さきラボ (Sakilabo Corporation Ltd.)

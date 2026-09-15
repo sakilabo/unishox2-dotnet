@@ -1,4 +1,4 @@
-// 定義済み設定で表現できない文字は読み飛ばさず、UnishoxFormatException を送出する。
+// Characters that a predefined setting cannot represent are not silently skipped; UnishoxFormatException is thrown.
 
 using Sakilabo.Unishox2;
 
@@ -26,12 +26,12 @@ public class OptionLossPreventionTests
     public void AlphaNumOnlyOption_WithSymbols_ThrowsInsteadOfSilentlyDroppingData()
     {
         var options = CompressOptions.AlphaNumOnly;
-        // '!' は AlphaNumOnly の文字集合(英数字と一部記号)に含まれない。
+        // '!' is not in the AlphaNumOnly character set of letters, digits and a few symbols.
         Assert.Throws<UnishoxFormatException>(() => Unishox2.Compress("Hello!!!", options));
     }
 
     /// <summary>
-    /// NoUnicode でも Unicode 文字は直接ビットパターンで符号化され、往復できる。
+    /// Even under NoUnicode, Unicode characters are encoded directly as bit patterns and round-trip correctly.
     /// </summary>
     [Fact]
     public void NoUnicodeOption_WithUnicodeInput_DoesNotLoseData()

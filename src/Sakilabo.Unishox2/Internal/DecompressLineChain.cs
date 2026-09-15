@@ -7,8 +7,8 @@ namespace Sakilabo.Unishox2.Internal
         private readonly List<byte> _current;
         private readonly IReadOnlyList<byte[]> _previousElements;
 
-        /// <param name="current">現在展開中の要素の出力バッファ(展開が進むにつれて伸びる)。</param>
-        /// <param name="previousElements">直前の要素から順に並べた、過去の要素の展開済みバイト列。</param>
+        /// <param name="current">The output buffer of the element being decompressed; it grows as decompression proceeds.</param>
+        /// <param name="previousElements">The decompressed byte sequences of the earlier elements, most recent first.</param>
         public DecompressLineChain(List<byte> current, IReadOnlyList<byte[]> previousElements)
         {
             _current = current;

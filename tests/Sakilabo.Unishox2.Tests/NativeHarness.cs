@@ -1,8 +1,10 @@
-// tests/upstream/harness/harness.c(siara-cc/Unishox2 unishox2.c を素通しで呼ぶだけの薄いラッパー)を
-// ビルドして 1 プロセスとして起動し、標準入出力でリクエスト/応答をやり取りするヘルパー。
-// Linux では gcc で直接ビルドする。Windows では vswhere.exe で見つけた Visual Studio の
-// VsDevCmd.bat 経由で MSVC(cl.exe)をネイティブにビルド・実行する(WSL は使わない)。
-// 通常テストでは起動しない。siara-cc/Unishox2比較を指定した場合のビルド失敗はテスト失敗にする。
+// Helper that builds tests/upstream/harness/harness.c, a thin wrapper that simply forwards to
+// siara-cc/Unishox2 unishox2.c, starts it as a single process and exchanges requests and responses
+// over standard input and output.
+// On Linux it is built directly with gcc. On Windows it is built and run natively with MSVC (cl.exe)
+// through the VsDevCmd.bat of a Visual Studio installation located by vswhere.exe; WSL is not used.
+// It is not started by the normal test run. When the siara-cc/Unishox2 comparison is requested,
+// a build failure is treated as a test failure.
 
 using System;
 using System.Diagnostics;
@@ -18,9 +20,9 @@ public sealed class NativeHarness : IDisposable
     private readonly Process? _process;
 
     /// <summary>
-    /// harness が利用できない場合の理由(ビルド失敗時の cl.exe/gcc の出力など)。
-    /// IsAvailable が true の場合は null。ビルドエラーを握り潰さず診断できるようにするため、
-    /// RequireAvailableOrSkip の例外・スキップ理由に含める。
+    /// Why the harness is unavailable, such as the cl.exe or gcc output from a failed build.
+    /// Null when IsAvailable is true. It is included in the exception or skip reason produced by
+    /// RequireAvailableOrSkip so that build errors can be diagnosed instead of being swallowed.
     /// </summary>
     public string? UnavailableReason { get; }
 
@@ -33,8 +35,9 @@ public sealed class NativeHarness : IDisposable
     public bool IsAvailable => _process != null;
 
     /// <summary>
-    /// -p:RequireNativeHarness=true でsiara-cc/Unishox2C版比較を明示的に指定したかどうか。
-    /// 通常のテストではOSにかかわらずCコンパイラの検出・ビルド・実行を行わない。
+    /// Whether the comparison against the siara-cc/Unishox2 C implementation was requested explicitly
+    /// with -p:RequireNativeHarness=true. The normal test run never detects, builds or runs a C compiler,
+    /// regardless of the operating system.
     /// </summary>
     public static bool IsMandatory
     {
@@ -49,30 +52,30 @@ public sealed class NativeHarness : IDisposable
     }
 
     /// <summary>
-    /// harness が利用できない場合の共通処理。IsMandatory が false の環境では
-    /// (SkippableFact/SkippableTheory 前提で)明示的にスキップする。
-    /// siara-cc/Unishox2C版比較を明示的に指定した場合では、利用できないこと自体を
-    /// テスト失敗として扱う(ビルド不能・MSVC 未導入などの実際の問題を隠さないため)。
+    /// Shared handling for an unavailable harness. Where IsMandatory is false the test is skipped
+    /// explicitly, which assumes SkippableFact or SkippableTheory.
+    /// Where the comparison against the C implementation was requested explicitly, being unavailable is
+    /// itself a test failure, so that real problems such as a broken build or a missing MSVC are not hidden.
     /// </summary>
     public static void RequireAvailableOrSkip(NativeHarness harness)
     {
         if (harness.IsAvailable)
             return;
 
-        string detail = harness.UnavailableReason ?? "(理由不明)";
+        string detail = harness.UnavailableReason ?? "(reason unknown)";
 
         Skip.If(!IsMandatory,
-            $"ネイティブハーネス(gcc または MSVC cl.exe)がこの環境では利用できないためスキップします。詳細: {detail}");
+            $"Skipped because the native harness (gcc or MSVC cl.exe) is unavailable in this environment. Detail: {detail}");
 
         throw new InvalidOperationException(
-            "siara-cc/Unishox2C版比較が指定されましたが、ネイティブハーネスを利用できません。" +
-            $"gcc のインストール、または Visual Studio 2022 の「C++ によるデスクトップ開発」(VC.Tools.x86.x64)の状態を確認してください。詳細: {detail}");
+            "The comparison against the siara-cc/Unishox2 C implementation was requested, but the native harness is unavailable. " +
+            $"Check that gcc is installed, or that Visual Studio 2022 has the \"Desktop development with C++\" workload (VC.Tools.x86.x64). Detail: {detail}");
     }
 
     public static NativeHarness TryCreate()
     {
         if (!IsMandatory)
-            return new NativeHarness(null, "siara-cc/Unishox2C版比較は未指定です。実行時は -p:RequireNativeHarness=true を指定してください。");
+            return new NativeHarness(null, "The comparison against the siara-cc/Unishox2 C implementation was not requested. Pass -p:RequireNativeHarness=true to run it.");
 
         try
         {
@@ -83,14 +86,14 @@ public sealed class NativeHarness : IDisposable
             string unishoxSrc = Path.Combine(unishoxDir, "unishox2.c");
 
             if (!File.Exists(harnessSrc) || !File.Exists(unishoxSrc))
-                return new NativeHarness(null, $"harness.c または unishox2.c が見つかりません({harnessSrc} / {unishoxSrc})。submodule(tests/upstream/Unishox2)を 'git submodule update --init --recursive' で取得済みか確認してください。");
+                return new NativeHarness(null, $"harness.c or unishox2.c was not found ({harnessSrc} / {unishoxSrc}). Check that the submodule at tests/upstream/Unishox2 has been fetched with 'git submodule update --init --recursive'.");
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 string binPath = Path.Combine(Path.GetTempPath(), "unishoxsharp_harness_" + Guid.NewGuid().ToString("N"));
                 var buildArgs = new[] { "-DUNISHOX_API_WITH_OUTPUT_LEN=1", "-O2", "-I", unishoxDir, harnessSrc, unishoxSrc, "-o", binPath };
                 if (!RunProcess("gcc", buildArgs, out string gccOutput))
-                    return new NativeHarness(null, "gcc によるビルドに失敗しました。gcc がインストールされているか確認してください。\n" + gccOutput);
+                    return new NativeHarness(null, "The gcc build failed. Check that gcc is installed.\n" + gccOutput);
                 return new NativeHarness(StartProcess(binPath, Array.Empty<string>()));
             }
 
@@ -98,18 +101,18 @@ public sealed class NativeHarness : IDisposable
             {
                 string? vsDevCmd = FindVsDevCmd(out string vsSearchDetail);
                 if (vsDevCmd == null)
-                    return new NativeHarness(null, "vswhere.exe で C++ ビルドツール(VC.Tools.x86.x64)を含む Visual Studio が見つかりません。" + vsSearchDetail);
+                    return new NativeHarness(null, "vswhere.exe found no Visual Studio installation that includes the C++ build tools (VC.Tools.x86.x64)." + vsSearchDetail);
 
-                // 並列テストのビルド出力が競合しないよう、呼び出しごとに一時ディレクトリを使う。
+                // Use a fresh temporary directory per call so that parallel test builds do not collide.
                 string binName = "harness_" + Guid.NewGuid().ToString("N");
                 string workDir = Path.Combine(Path.GetTempPath(), binName);
                 Directory.CreateDirectory(workDir);
                 string binPath = Path.Combine(workDir, "harness.exe");
 
-                // VsDevCmd.bat と cl.exe を一つの .cmd に置き、空白を含むパスを一度だけ引用する。
-                // /TC: C としてコンパイル(unishox2.c/harness.c は C ソース)。
-                // /std:c11 /utf-8: siara-cc/Unishox2 のソースは C11 相当、ソースは UTF-8。
-                // MSVC が #if 内のコンマ演算子を受理しないため、出力長なしの API を使う。
+                // Put VsDevCmd.bat and cl.exe in a single .cmd so that paths containing spaces are quoted once.
+                // /TC compiles as C, since unishox2.c and harness.c are C sources.
+                // /std:c11 /utf-8 matches the siara-cc/Unishox2 sources, which are C11 and encoded as UTF-8.
+                // MSVC rejects the comma operator inside #if, so the API without an output length is used.
                 string buildScript = Path.Combine(workDir, "build.cmd");
                 string scriptContent =
                     "@echo off\r\n" +
@@ -119,15 +122,15 @@ public sealed class NativeHarness : IDisposable
                 File.WriteAllText(buildScript, scriptContent, new UTF8Encoding(false));
 
                 if (!RunProcess("cmd.exe", new[] { "/d", "/c", buildScript }, workDir, out string clOutput))
-                    return new NativeHarness(null, "MSVC(cl.exe)によるビルドに失敗しました。\nビルドスクリプト: " + buildScript + "\n出力:\n" + clOutput);
+                    return new NativeHarness(null, "The MSVC (cl.exe) build failed.\nBuild script: " + buildScript + "\nOutput:\n" + clOutput);
 
                 var process = StartProcess(binPath, Array.Empty<string>());
                 if (process == null)
-                    return new NativeHarness(null, $"ビルドした harness.exe の起動に失敗しました({binPath})。");
+                    return new NativeHarness(null, $"The harness.exe that was built could not be started ({binPath}).");
                 return new NativeHarness(process);
             }
 
-            return new NativeHarness(null, $"未対応の OS です({RuntimeInformation.OSDescription})。");
+            return new NativeHarness(null, $"Unsupported operating system ({RuntimeInformation.OSDescription}).");
         }
         catch (Exception ex)
         {
@@ -136,8 +139,8 @@ public sealed class NativeHarness : IDisposable
     }
 
     /// <summary>
-    /// vswhere.exe(固定インストール先)で、C++ ビルドツール(VC.Tools.x86.x64)を含む
-    /// 最新の Visual Studio を探し、その VsDevCmd.bat のパスを返す。見つからない場合は null。
+    /// Uses vswhere.exe at its fixed install location to find the newest Visual Studio that includes the
+    /// C++ build tools (VC.Tools.x86.x64) and returns the path to its VsDevCmd.bat, or null if none is found.
     /// </summary>
     private static string? FindVsDevCmd(out string detail)
     {
@@ -147,7 +150,7 @@ public sealed class NativeHarness : IDisposable
 
         if (!File.Exists(vswhere))
         {
-            detail = $"vswhere.exe が既定の場所({vswhere})にありません。";
+            detail = $"vswhere.exe is not at its default location ({vswhere}).";
             return null;
         }
 
@@ -163,7 +166,7 @@ public sealed class NativeHarness : IDisposable
         using var p = Process.Start(psi);
         if (p == null)
         {
-            detail = "vswhere.exe の起動に失敗しました。";
+            detail = "vswhere.exe could not be started.";
             return null;
         }
         string stdout = p.StandardOutput.ReadToEnd();
@@ -173,14 +176,14 @@ public sealed class NativeHarness : IDisposable
         string installPath = stdout.Trim();
         if (p.ExitCode != 0 || installPath.Length == 0)
         {
-            detail = $"vswhere.exe が C++ ビルドツールを含む Visual Studio を見つけられませんでした(exit={p.ExitCode})。\n{stderr}";
+            detail = $"vswhere.exe found no Visual Studio with the C++ build tools (exit={p.ExitCode}).\n{stderr}";
             return null;
         }
 
         string vsDevCmd = Path.Combine(installPath, "Common7", "Tools", "VsDevCmd.bat");
         if (!File.Exists(vsDevCmd))
         {
-            detail = $"VsDevCmd.bat が見つかりません({vsDevCmd})。";
+            detail = $"VsDevCmd.bat was not found ({vsDevCmd}).";
             return null;
         }
 
@@ -188,16 +191,16 @@ public sealed class NativeHarness : IDisposable
         return vsDevCmd;
     }
 
-    /// <summary>1 行のリクエストを送り、1 行の応答を返す。</summary>
+    /// <summary>Sends a one-line request and returns the one-line response.</summary>
     public string Send(string request)
     {
         if (_process == null)
-            throw new InvalidOperationException("ネイティブハーネスは利用できません。");
+            throw new InvalidOperationException("The native harness is unavailable.");
         _process.StandardInput.Write(request);
         _process.StandardInput.Write('\n');
         _process.StandardInput.Flush();
         string? line = _process.StandardOutput.ReadLine();
-        return line ?? throw new InvalidOperationException("ネイティブハーネスからの応答がありません(プロセス終了の可能性)。");
+        return line ?? throw new InvalidOperationException("No response from the native harness; the process may have exited.");
     }
 
     private static bool RunProcess(string fileName, string[] arguments, out string output)
@@ -218,21 +221,22 @@ public sealed class NativeHarness : IDisposable
         return RunProcessCore(psi, out output);
     }
 
-    /// <summary>保持する出力の最大行数。</summary>
+    /// <summary>The maximum number of output lines retained.</summary>
     private const int MaxCapturedOutputLines = 500;
 
     /// <summary>
-    /// stdout/stderr を非同期に読み切ってからプロセス終了を待つ(標準の同期 ReadToEnd を
-    /// 両ストリームに順番に使うと、出力量によっては相手側パイプが詰まってデッドロックしうるため)。
-    /// タイムアウト時は子プロセス(cmd.exe が起動する cl.exe 等)ごとツリーで終了する。
-    /// 出力は最大 500 行に切り詰める。
+    /// Drains stdout and stderr asynchronously before waiting for the process to exit. Using the plain
+    /// synchronous ReadToEnd on the two streams in turn can deadlock, because a large amount of output
+    /// fills the other pipe.
+    /// On timeout the whole process tree is terminated, including children such as the cl.exe that cmd.exe starts.
+    /// The captured output is truncated to at most 500 lines.
     /// </summary>
     private static bool RunProcessCore(ProcessStartInfo psi, out string output)
     {
         using var p = Process.Start(psi);
         if (p == null)
         {
-            output = $"プロセスを起動できません: {psi.FileName}";
+            output = $"The process could not be started: {psi.FileName}";
             return false;
         }
 
@@ -244,7 +248,7 @@ public sealed class NativeHarness : IDisposable
             if (data == null) return;
             lock (sync)
             {
-                // タイムアウトと省略件数の通知に最大2行を確保する。
+                // Reserve up to two lines for the timeout notice and the omitted-line count.
                 if (lines.Count < MaxCapturedOutputLines - 2) lines.Add(data);
                 else omitted++;
             }
@@ -257,23 +261,23 @@ public sealed class NativeHarness : IDisposable
         bool exited = p.WaitForExit(120000);
         if (!exited)
         {
-            try { p.Kill(entireProcessTree: true); } catch { /* 終了処理中の例外は無視する */ }
+            try { p.Kill(entireProcessTree: true); } catch { /* ignore exceptions raised while tearing down */ }
             p.WaitForExit(5000);
-            lock (sync) lines.Add("(タイムアウトのため、プロセスツリーを終了しました)");
+            lock (sync) lines.Add("(the process tree was terminated because of a timeout)");
         }
         else
         {
-            // WaitForExit(int) は、リダイレクトされた出力の非同期読み取りイベントが
-            // すべて処理し終わったことまでは保証しない(.NET のドキュメント上の既知の注意点)。
-            // 引数無しの WaitForExit() を続けて呼び、OutputDataReceived/ErrorDataReceived の
-            // 完了を待ってから出力を確定させる。
+            // WaitForExit(int) does not guarantee that every asynchronous read event for the redirected
+            // output has been processed; this is a documented caveat in the .NET documentation.
+            // Call the parameterless WaitForExit() afterwards to wait for OutputDataReceived and
+            // ErrorDataReceived to finish before treating the output as complete.
             p.WaitForExit();
         }
 
         lock (sync)
         {
             if (omitted > 0)
-                lines.Add($"...(出力 {omitted} 行を省略、上限 {MaxCapturedOutputLines} 行)");
+                lines.Add($"...({omitted} output lines omitted; the limit is {MaxCapturedOutputLines} lines)");
             output = string.Join(Environment.NewLine, lines);
         }
         return exited && p.ExitCode == 0;
@@ -307,7 +311,7 @@ public sealed class NativeHarness : IDisposable
             if (parent == null) break;
             dir = parent.FullName;
         }
-        throw new DirectoryNotFoundException("tests/upstream が見つかりません(リポジトリルートを特定できません)。");
+        throw new DirectoryNotFoundException("tests/upstream was not found, so the repository root could not be determined.");
     }
 
     public void Dispose()
@@ -324,7 +328,7 @@ public sealed class NativeHarness : IDisposable
         }
         catch
         {
-            // テスト終了処理での例外は無視する。
+            // Ignore exceptions raised while tearing down the test.
         }
         _process.Dispose();
     }

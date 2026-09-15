@@ -1,7 +1,7 @@
 namespace Sakilabo.Unishox2.Internal
 {
     /// <summary>
-    /// 圧縮バイト列を MSB からビット単位で読み出す。
+    /// Reads a compressed byte sequence bit by bit, starting from the MSB.
     /// </summary>
     internal sealed class BitReader
     {
@@ -13,7 +13,7 @@ namespace Sakilabo.Unishox2.Internal
             LengthBits = input.Length * 8;
         }
 
-        /// <summary>入力全体のビット長。</summary>
+        /// <summary>The bit length of the whole input.</summary>
         public int LengthBits { get; }
 
         public bool ReadBit(int bitNo)
@@ -22,7 +22,7 @@ namespace Sakilabo.Unishox2.Internal
         }
 
         /// <summary>
-        /// bitNo から 8 ビット分を読む(バイト境界を跨いでもよい)。末尾を越える分は 1 で埋める。
+        /// Reads 8 bits starting at bitNo, which may cross a byte boundary. Bits past the end are filled with 1.
         /// </summary>
         public byte Read8BitCode(int bitNo)
         {
@@ -42,7 +42,7 @@ namespace Sakilabo.Unishox2.Internal
             return code;
         }
 
-        /// <summary>連続する 1 ビットの個数を limit まで数え、終端の 0 を読み飛ばす。</summary>
+        /// <summary>Counts consecutive 1 bits up to limit and skips the terminating 0.</summary>
         public int? GetStepCodeIdx(ref int bitNo, int limit)
         {
             int idx = 0;
@@ -59,7 +59,7 @@ namespace Sakilabo.Unishox2.Internal
             return idx;
         }
 
-        /// <summary>bitNo から count ビットを読み取る。読み取り位置は進めない。</summary>
+        /// <summary>Reads count bits starting at bitNo without advancing the read position.</summary>
         public long GetNumFromBits(int bitNo, int count)
         {
             long ret = 0;
@@ -72,7 +72,7 @@ namespace Sakilabo.Unishox2.Internal
             return count < 0 ? ret : -1;
         }
 
-        /// <summary>可変長のカウント値を読み取る。</summary>
+        /// <summary>Reads a variable-length count value.</summary>
         public long ReadCount(ref int bitNo)
         {
             int? index = GetStepCodeIdx(ref bitNo, 4);
@@ -87,8 +87,8 @@ namespace Sakilabo.Unishox2.Internal
         }
 
         /// <summary>
-        /// 特殊コード(スペース/カンマ/ピリオド/改行/切替/終端)は
-        /// (IsSpecial:true, SpecialCode) で返し、通常の Unicode 差分は (false, delta) で返す。
+        /// Special codes (space, comma, period, newline, switch and terminator) are returned as
+        /// (IsSpecial: true, SpecialCode); an ordinary Unicode delta is returned as (false, delta).
         /// </summary>
         public (bool IsSpecial, int SpecialCode, long Delta)? ReadUnicode(ref int bitNo)
         {
@@ -111,7 +111,7 @@ namespace Sakilabo.Unishox2.Internal
             return (false, 0, sign != 0 ? -count : count);
         }
 
-        /// <summary>垂直符号を読み取り、符号表のインデックスを返す。</summary>
+        /// <summary>Reads a vertical code and returns its index in the code table.</summary>
         public int? ReadVCodeIdx(ref int bitNo)
         {
             if (bitNo < LengthBits)
@@ -132,7 +132,7 @@ namespace Sakilabo.Unishox2.Internal
             return null;
         }
 
-        /// <summary>水平符号を読み取り、文字グループのインデックスを返す。</summary>
+        /// <summary>Reads a horizontal code and returns the index of the character group.</summary>
         public HCodeGroup? ReadHCodeIdx(ref int bitNo, HCodes hCodes)
         {
             if (!hCodes[HCodeGroup.Alpha].HasValue)

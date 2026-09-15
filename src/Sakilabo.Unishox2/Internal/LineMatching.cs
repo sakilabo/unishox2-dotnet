@@ -5,7 +5,7 @@ namespace Sakilabo.Unishox2.Internal
     internal static class LineMatching
     {
         /// <summary>
-        /// 単一要素の圧縮時、既にエンコード済みの範囲内から自己反復を探す。
+        /// When compressing a single element, searches the already encoded range for a self-repetition.
         /// </summary>
         public static bool TryMatchOccurrence(byte[] input, int l, BitWriter w, ref HCodeGroup state, HCodes hCodes, out int newL)
         {
@@ -22,7 +22,7 @@ namespace Sakilabo.Unishox2.Internal
                     k++;
                 }
                 while (k < len && ((input[k] >> 6) == 2))
-                    k--; // UTF-8 の部分一致を避ける
+                    k--; // avoid a partial UTF-8 match
                 if ((k - l) > (Tables.NiceLen - 1))
                 {
                     int matchLen = k - l - Tables.NiceLen;
@@ -50,8 +50,9 @@ namespace Sakilabo.Unishox2.Internal
         }
 
         /// <summary>
-        /// lines 圧縮時、現在要素の既エンコード範囲および
-        /// 過去の要素全体から最長一致を探す。ctx=0(現在要素自身)は limit=l に制限される。
+        /// When compressing lines, searches for the longest match in the already encoded range of the
+        /// current element and across the whole of each earlier element. ctx=0, the current element
+        /// itself, is limited to limit=l.
         /// </summary>
         public static bool TryMatchLine(byte[] input, int l, BitWriter w, ILineChain chain, ref HCodeGroup state, HCodes hCodes, out int newL)
         {
@@ -78,7 +79,7 @@ namespace Sakilabo.Unishox2.Internal
                         i++;
                     }
                     while (k > j && k < lineLen && ((chain.GetByte(ctx, k) >> 6) == 2))
-                        k--; // UTF-8 の部分一致を避ける(k==lineLen は参照検索の対象範囲の終端)
+                        k--; // avoid a partial UTF-8 match; k==lineLen is the end of the searchable range
 
                     if ((k - j) >= Tables.NiceLen)
                     {
@@ -112,8 +113,9 @@ namespace Sakilabo.Unishox2.Internal
         }
 
         /// <summary>
-        /// dist は要素先頭からのコピー開始位置。1 バイトずつコピーするため、コピー元と
-        /// 出力範囲が重なる自己参照も、直前に出力したバイトを続けて参照できる。
+        /// dist is the copy start position measured from the beginning of the element. Copying one byte
+        /// at a time lets a self-reference whose source overlaps the output range keep reading the bytes
+        /// that were just written.
         /// </summary>
         public static int? DecodeRepeat(BitReader r, ref int bitNo, List<byte> output, ILineChain chain)
         {
@@ -138,7 +140,7 @@ namespace Sakilabo.Unishox2.Internal
             {
                 int srcIndex = (int)(dist + i);
                 if (ctx == 0 && srcIndex >= chain.GetLength(0))
-                    return null; // 自己参照が確定済みの範囲を超えて先読みしようとしている(不正なデータ)
+                    return null; // the self-reference reads past the settled range, which means the data is invalid
                 output.Add(chain.GetByte(ctx, srcIndex));
             }
 
@@ -146,7 +148,7 @@ namespace Sakilabo.Unishox2.Internal
         }
 
         /// <summary>
-        /// 単一要素の反復をコピーする。検索範囲の制約によりコピー元と出力範囲は重ならない。
+        /// Copies a repetition within a single element. The search range constraints keep the source and the output from overlapping.
         /// </summary>
         public static int? DecodeOccurrence(BitReader r, ref int bitNo, List<byte> output)
         {

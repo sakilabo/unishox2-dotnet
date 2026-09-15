@@ -1,5 +1,5 @@
-// Compress/Decompress・CompressLines/DecompressLines が、CompressOption を
-// 呼び出しごとに独立して受け取ること(圧縮結果に設定を保持しない)を検証する。
+// Verifies that Compress/Decompress and CompressLines/DecompressLines take a CompressOption independently
+// per call, and that the compressed result does not retain the settings.
 
 using System;
 using Sakilabo.Unishox2;

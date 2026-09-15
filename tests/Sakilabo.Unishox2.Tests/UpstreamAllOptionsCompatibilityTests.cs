@@ -1,4 +1,4 @@
-// 全17種類の定義済み設定を、それぞれが表現できる入力で相互展開する。
+// Cross-decompresses all 17 predefined settings, each with input it can represent.
 
 using System;
 using System.Collections.Generic;
@@ -9,8 +9,8 @@ namespace Sakilabo.Unishox2.Tests;
 
 public class UpstreamAllOptionsCompatibilityTests
 {
-    // C# の静的フィールドはソース上の宣言順に初期化されるため、OptionCases が参照する
-    // *Cases 配列は、必ず OptionCases より前に定義する。
+    // Static fields in C# are initialized in source declaration order, so every *Cases array that
+    // OptionCases refers to must be declared before OptionCases.
     private static readonly string[] AlphaOnlyCases =
     {
         "Hello",
@@ -39,9 +39,9 @@ public class UpstreamAllOptionsCompatibilityTests
         "日本語とEnglishの混在123",
     }).ToArray();
 
-    // C 実装の設定番号は tests/upstream/harness/harness.c の get_preset() / siara-cc/Unishox2
-    // test_unishox2.c の usage コメントに揃えた 0-16 の番号。CompressOptions の
-    // 各静的プロパティの宣言順と一致する。
+    // The setting numbers of the C implementation run from 0 to 16, matching get_preset() in
+    // tests/upstream/harness/harness.c and the usage comment in siara-cc/Unishox2 test_unishox2.c.
+    // They line up with the declaration order of the static properties on CompressOptions.
     private static readonly (string Name, Func<CompressOption> Factory, int NativeOptionId, string[] SafeCases)[] OptionCases =
     {
         ("Default", () => CompressOptions.Default, 0, AsciiAndUnicodeCases),
@@ -124,8 +124,8 @@ public class UpstreamAllOptionsCompatibilityTests
             }
         }
 
-        Assert.True(checkedCount > 0, "ネイティブハーネスは利用可能と判定されたが、1 件も検証できなかった。");
-        Assert.True(mismatches.Count == 0, $"{mismatches.Count} 件不一致:\n" + string.Join("\n", mismatches.Take(30)));
+        Assert.True(checkedCount > 0, "The native harness was reported as available, but not a single case could be verified.");
+        Assert.True(mismatches.Count == 0, $"{mismatches.Count} mismatches:\n" + string.Join("\n", mismatches.Take(30)));
     }
 
     private static string Describe(string text) => text.Length > 40 ? text.Substring(0, 40) + "..." : text;

@@ -7,8 +7,8 @@ TestResults/
 *.nupkg
 *.snupkg
 
-# Cハーネスを手動ビルドしたときの生成物。
-# 比較テストは一時フォルダーへビルドするため、通常この場所には生成されない。
+# Build output from compiling the C harness by hand.
+# The comparison tests build into a temporary folder, so nothing is normally produced here.
 /tests/upstream/harness/harness
 /tests/upstream/harness/harness.exe
 /tests/upstream/harness/*.obj

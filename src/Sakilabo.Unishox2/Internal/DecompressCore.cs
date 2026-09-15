@@ -5,7 +5,8 @@ namespace Sakilabo.Unishox2.Internal
     internal static class DecompressCore
     {
         /// <summary>
-        /// 圧縮バイト列を展開する。lineChain が null なら lines 機能なし(単独要素)として展開する。
+        /// Decompresses a compressed byte sequence. When lineChain is null the data is decompressed as a
+        /// standalone element, without the lines feature.
         /// </summary>
         public static List<byte> Decompress(
             byte[] input,
@@ -64,12 +65,12 @@ namespace Sakilabo.Unishox2.Internal
                                 {
                                     int? rptRet = DecodeRepeatDispatch(r, ref bitNo, output, lineChain);
                                     if (rptRet == null)
-                                        return output; // 現在までの出力で展開を終了する。
+                                        return output; // finish decompression with the output produced so far
                                     h = dstate;
                                     continueOuter = true;
                                     break;
                                 }
-                                // switch だけを抜け、現在の入力位置から処理を続ける。
+                                // Leave only the switch and continue from the current input position.
                                 break;
                             case 2:
                                 output.Add((byte)',');
@@ -385,7 +386,7 @@ namespace Sakilabo.Unishox2.Internal
                             }
                             count += 4;
                             if (output.Count <= 0)
-                                return output; // 不正な符号では現在までの出力を返す。
+                                return output; // on an invalid code, return the output produced so far
                             byte rptC = output[output.Count - 1];
                             while (count-- > 0)
                                 output.Add(rptC);
@@ -425,7 +426,7 @@ namespace Sakilabo.Unishox2.Internal
         private static void AppendFreqSeq(List<byte> output, byte[][] freqSeq, int index)
         {
             if (index < 0 || index >= freqSeq.Length)
-                throw new UnishoxFormatException("圧縮データが未設定の頻出文字列を参照しています。");
+                throw new UnishoxFormatException("The compressed data refers to a frequent sequence that is not configured.");
             byte[] seq = freqSeq[index];
             for (int i = 0; i < seq.Length; i++)
                 output.Add(seq[i]);
